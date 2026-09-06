@@ -1,0 +1,11 @@
+lockfileVersion: '6.0'
+
+dependencies:
+  express:
+    specifier: 4.18.0
+    version: 4.18.0
+
+devDependencies:
+  nodemon:
+    specifier: 3.0.0
+    version: 3.0.0
