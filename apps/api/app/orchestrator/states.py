@@ -48,11 +48,16 @@ class DeploymentState(Enum):
     START_FAILED = "start_failed"
     HEALTH_CHECK_FAILED = "health_check_failed"
     
+    # Repair states
+    REPAIRING = "repairing"
+    VALIDATING_REPAIR = "validating_repair"
+    REPAIR_EXHAUSTED = "repair_exhausted"
+
     # Security/Timeout states
     SECURITY_BLOCKED = "security_blocked"
     TIMEOUT = "timeout"
     CANCELLED = "cancelled"
-    
+
     @classmethod
     def is_terminal(cls, state: "DeploymentState") -> bool:
         """Check if state is terminal (no further transitions)."""
@@ -64,17 +69,18 @@ class DeploymentState(Enum):
             cls.BUILD_FAILED,
             cls.START_FAILED,
             cls.HEALTH_CHECK_FAILED,
+            cls.REPAIR_EXHAUSTED,
             cls.SECURITY_BLOCKED,
             cls.TIMEOUT,
             cls.CANCELLED,
         }
         return state in terminal_states
-        
+
     @classmethod
     def is_success(cls, state: "DeploymentState") -> bool:
         """Check if state represents successful deployment."""
         return state == cls.RUNNING
-        
+
     @classmethod
     def is_failure(cls, state: "DeploymentState") -> bool:
         """Check if state represents a failure."""
@@ -85,11 +91,12 @@ class DeploymentState(Enum):
             cls.BUILD_FAILED,
             cls.START_FAILED,
             cls.HEALTH_CHECK_FAILED,
+            cls.REPAIR_EXHAUSTED,
             cls.SECURITY_BLOCKED,
             cls.TIMEOUT,
         }
         return state in failure_states
-        
+
     @classmethod
     def get_valid_transitions(cls, state: "DeploymentState") -> set["DeploymentState"]:
         """Get valid transitions from a given state."""
@@ -98,8 +105,10 @@ class DeploymentState(Enum):
             cls.CLONING: {cls.ANALYZING, cls.CLONE_FAILED},
             cls.ANALYZING: {cls.PLANNING, cls.ANALYSIS_FAILED},
             cls.PLANNING: {cls.BUILDING, cls.PLAN_FAILED},
-            cls.BUILDING: {cls.STARTING, cls.BUILD_FAILED, cls.SECURITY_BLOCKED},
-            cls.STARTING: {cls.HEALTH_CHECKING, cls.START_FAILED},
-            cls.HEALTH_CHECKING: {cls.RUNNING, cls.HEALTH_CHECK_FAILED, cls.TIMEOUT},
+            cls.BUILDING: {cls.STARTING, cls.BUILD_FAILED, cls.SECURITY_BLOCKED, cls.REPAIRING},
+            cls.STARTING: {cls.HEALTH_CHECKING, cls.START_FAILED, cls.REPAIRING},
+            cls.HEALTH_CHECKING: {cls.RUNNING, cls.HEALTH_CHECK_FAILED, cls.TIMEOUT, cls.REPAIRING},
+            cls.REPAIRING: {cls.VALIDATING_REPAIR, cls.REPAIR_EXHAUSTED},
+            cls.VALIDATING_REPAIR: {cls.BUILDING, cls.REPAIR_EXHAUSTED},
         }
         return transitions.get(state, set())
