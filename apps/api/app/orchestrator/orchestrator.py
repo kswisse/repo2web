@@ -10,6 +10,10 @@ Coordinates the full deployment pipeline:
 6. Start runtime
 7. Health check
 8. Return result
+
+Phase 2.9 adds:
+- Bounded repair loop for supported deployment failures
+- Deterministic repair proposals validated before execution
 """
 
 import asyncio
@@ -21,9 +25,19 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.analyzer.analyzer import analyze_repository
-from app.analyzer.types import ExecutionPlan
+from app.analyzer.types import (
+    ApplicationInfo,
+    BuildInfo,
+    CompatibilityResult,
+    ExecutionPlan,
+    RuntimeInfo,
+)
 from app.repository.fetcher import RepositoryFetcher
 from app.repository.snapshot import RepositorySnapshot
+from app.repair.deterministic import DeterministicRepairProvider
+from app.repair.loop import RepairLoop
+from app.repair.types import RepairContext, RepairType
+from app.repair.validator import validate_repair_proposal
 from app.runtime.executor import BuildExecutor, RuntimeExecutor, BuildResult, RuntimeInstance
 from app.runtime.health import HealthChecker, HealthCheckResult
 from app.runtime.cleanup import ContainerCleanup
@@ -74,6 +88,12 @@ class DeploymentResult:
     last_health_check_at: Optional[datetime] = None
     resource_metrics: Optional[ContainerMetrics] = None
 
+    # Repair tracking
+    repair_attempted: bool = False
+    repair_attempts: int = 0
+    repair_proposal_type: Optional[str] = None
+    repair_final_result: Optional[str] = None  # "repaired", "rejected", "exhausted", "failed"
+
 
 class DeploymentOrchestrator:
     """Orchestrates the full deployment pipeline.
@@ -112,6 +132,9 @@ class DeploymentOrchestrator:
         self.runtime_executor = RuntimeExecutor(self.runtime, self.cleanup)
         self.health_checker = HealthChecker(self.runtime)
         
+        # Initialize repair loop (Phase 2.9)
+        self.repair_loop = RepairLoop(DeterministicRepairProvider())
+        
     async def deploy(
         self,
         deployment_id: str,
@@ -138,6 +161,8 @@ class DeploymentOrchestrator:
         
         snapshot: Optional[RepositorySnapshot] = None
         container_id: Optional[str] = None
+        execution_plan: Optional[ExecutionPlan] = None
+        file_names: list[str] = []
         
         try:
             # 1. Validate URL
@@ -171,6 +196,15 @@ class DeploymentOrchestrator:
             result.framework = execution_plan.application.framework
             result.port = execution_plan.runtime.port
             result.analyzed_at = datetime.now(timezone.utc)
+            
+            # Capture file names for repair context
+            try:
+                from app.analyzer.file_inventory import scan_repository
+                from pathlib import Path as _Path
+                inv = scan_repository(snapshot.local_path)
+                file_names = [_Path(f).name for f in inv.files[:50]]
+            except Exception:
+                file_names = []
             self._log_stage_complete(deployment_id, "analyzing", {
                 "framework": result.framework,
                 "port": result.port,
@@ -210,10 +244,54 @@ class DeploymentOrchestrator:
             )
             
             if not build_result.success:
-                result.state = DeploymentState.BUILD_FAILED
-                result.error_message = build_result.error
-                result.error_stage = "building"
-                return result
+                # Phase 2.9: Attempt repair for supported failures
+                repaired_plan = await self._attempt_build_repair(
+                    deployment_id=deployment_id,
+                    execution_plan=execution_plan,
+                    build_error=build_result.error or "Build failed",
+                    file_names=file_names,
+                    result=result,
+                    snapshot=snapshot,
+                    start_time=start_time,
+                )
+                
+                if repaired_plan is not None:
+                    # Repair succeeded — retry build with repaired plan
+                    execution_plan = repaired_plan
+                    result.framework = repaired_plan.application.framework
+                    result.port = repaired_plan.runtime.port
+                    result.state = DeploymentState.BUILDING
+                    
+                    plan_dict = {
+                        "framework": repaired_plan.application.framework,
+                        "install_steps": [{"command": repaired_plan.build.install_command}] if repaired_plan.build.install_command else [],
+                        "build_steps": [{"command": repaired_plan.build.build_command}] if repaired_plan.build.build_command else [],
+                        "run_command": repaired_plan.runtime.start_command,
+                        "port": repaired_plan.runtime.port,
+                    }
+                    
+                    build_result = await self.build_executor.execute_build(
+                        deployment_id=deployment_id,
+                        repo_url=repository_url,
+                        commit_sha=snapshot.commit_sha,
+                        execution_plan=plan_dict,
+                        build_dir=snapshot.local_path,
+                    )
+                    
+                    if not build_result.success:
+                        result.state = DeploymentState.BUILD_FAILED
+                        result.error_message = build_result.error
+                        result.error_stage = "building"
+                        result.repair_final_result = "failed"
+                        return result
+                else:
+                    # No repair possible or all attempts exhausted
+                    result.state = DeploymentState.BUILD_FAILED
+                    result.error_message = build_result.error
+                    result.error_stage = "building"
+                    if result.repair_final_result is None:
+                        result.repair_final_result = "unsupported"
+                    return result
                 
             result.build_container_id = build_result.container_id
             result.build_completed_at = datetime.now(timezone.utc)
@@ -269,10 +347,47 @@ class DeploymentOrchestrator:
             result.last_health_check_at = datetime.now(timezone.utc)
             
             if health_result.status != "healthy":
-                result.state = DeploymentState.HEALTH_CHECK_FAILED
-                result.error_message = health_result.error or "Health check failed"
-                result.error_stage = "health_checking"
-                return result
+                # Phase 2.9: Attempt repair for health check failures
+                repaired_plan = await self._attempt_health_repair(
+                    deployment_id=deployment_id,
+                    execution_plan=execution_plan,
+                    health_error=health_result.error or "Health check failed",
+                    file_names=file_names,
+                    result=result,
+                )
+                
+                if repaired_plan is not None:
+                    # Repair succeeded — retry with repaired plan
+                    execution_plan = repaired_plan
+                    result.framework = repaired_plan.application.framework
+                    result.port = repaired_plan.runtime.port
+                    
+                    # Retry health check with repaired path
+                    health_result = await self.health_checker.check_health(
+                        container_id=container_id,
+                        port=result.port,
+                        path=repaired_plan.runtime.health_check_path,
+                        timeout=30,
+                    )
+                    
+                    result.health_status = health_result.status
+                    result.health_response_time_ms = health_result.response_time_ms
+                    result.last_health_check_at = datetime.now(timezone.utc)
+                    
+                    if health_result.status != "healthy":
+                        result.state = DeploymentState.HEALTH_CHECK_FAILED
+                        result.error_message = health_result.error or "Health check failed after repair"
+                        result.error_stage = "health_checking"
+                        result.repair_final_result = "failed"
+                        return result
+                else:
+                    # No repair possible or all attempts exhausted
+                    result.state = DeploymentState.HEALTH_CHECK_FAILED
+                    result.error_message = health_result.error or "Health check failed"
+                    result.error_stage = "health_checking"
+                    if result.repair_final_result is None:
+                        result.repair_final_result = "unsupported"
+                    return result
                 
             self._log_stage_complete(deployment_id, "health_checking", {
                 "healthy": True,
@@ -429,3 +544,308 @@ class DeploymentOrchestrator:
                 "port": result.port,
             },
         )
+
+    # ---- Phase 2.9: Repair Integration ----
+
+    def _build_repair_context(
+        self,
+        execution_plan: ExecutionPlan,
+        failure_stage: str,
+        failure_error: str,
+        file_names: list[str],
+    ) -> RepairContext:
+        """Create a bounded RepairContext from an ExecutionPlan and failure info.
+
+        Only exposes information permitted for repair analysis.
+        Never exposes secrets, credentials, or internal paths.
+
+        Args:
+            execution_plan: The current execution plan.
+            failure_stage: The stage where deployment failed.
+            failure_error: The error message from the failure.
+            file_names: Key file names in the repository.
+
+        Returns:
+            RepairContext with bounded information.
+        """
+        return RepairContext(
+            framework=execution_plan.application.framework,
+            language=execution_plan.application.language,
+            package_manager=execution_plan.build.package_manager,
+            start_command=execution_plan.runtime.start_command,
+            health_check_path=execution_plan.runtime.health_check_path,
+            port=execution_plan.runtime.port,
+            install_command=execution_plan.build.install_command,
+            build_command=execution_plan.build.build_command,
+            failure_stage=failure_stage,
+            failure_error=failure_error[:500],  # Bounded error message
+            repository_url=execution_plan.repository.url,
+            evidence_summary=[e.value for e in execution_plan.evidence[:10]],
+            file_names=file_names[:50],  # Bounded file list
+        )
+
+    def _apply_repair_proposal(
+        self,
+        execution_plan: ExecutionPlan,
+        proposal,
+    ) -> ExecutionPlan:
+        """Apply a validated repair proposal to an ExecutionPlan.
+
+        Creates a new immutable ExecutionPlan with the repaired values.
+        The original plan is never modified.
+
+        Args:
+            execution_plan: The original execution plan.
+            proposal: The validated repair proposal.
+
+        Returns:
+            New ExecutionPlan with repaired values.
+        """
+        # Build new application info if framework changed
+        application = execution_plan.application
+        if proposal.repair_type == RepairType.FRAMEWORK_DETECTION:
+            application = ApplicationInfo(
+                language=execution_plan.application.language,
+                framework=proposal.proposed_value,
+                framework_version=execution_plan.application.framework_version,
+                confidence="HIGH",
+            )
+
+        # Build new build info if install/build command changed
+        build = execution_plan.build
+        if proposal.repair_type == RepairType.INSTALL_COMMAND:
+            build = BuildInfo(
+                package_manager=execution_plan.build.package_manager,
+                install_command=proposal.proposed_value,
+                build_command=execution_plan.build.build_command,
+                working_directory=execution_plan.build.working_directory,
+            )
+        elif proposal.repair_type == RepairType.BUILD_COMMAND:
+            build = BuildInfo(
+                package_manager=execution_plan.build.package_manager,
+                install_command=execution_plan.build.install_command,
+                build_command=proposal.proposed_value,
+                working_directory=execution_plan.build.working_directory,
+            )
+        elif proposal.repair_type == RepairType.PACKAGE_MANAGER:
+            build = BuildInfo(
+                package_manager=proposal.proposed_value,
+                install_command=execution_plan.build.install_command,
+                build_command=execution_plan.build.build_command,
+                working_directory=execution_plan.build.working_directory,
+            )
+
+        # Build new runtime info if start command/port/health path changed
+        runtime = execution_plan.runtime
+        if proposal.repair_type == RepairType.START_COMMAND:
+            runtime = RuntimeInfo(
+                start_command=proposal.proposed_value,
+                port=execution_plan.runtime.port,
+                host=execution_plan.runtime.host,
+                health_check_path=execution_plan.runtime.health_check_path,
+            )
+        elif proposal.repair_type == RepairType.PORT:
+            runtime = RuntimeInfo(
+                start_command=execution_plan.runtime.start_command,
+                port=int(proposal.proposed_value),
+                host=execution_plan.runtime.host,
+                health_check_path=execution_plan.runtime.health_check_path,
+            )
+        elif proposal.repair_type == RepairType.HEALTH_CHECK_PATH:
+            runtime = RuntimeInfo(
+                start_command=execution_plan.runtime.start_command,
+                port=execution_plan.runtime.port,
+                host=execution_plan.runtime.host,
+                health_check_path=proposal.proposed_value,
+            )
+
+        # Validate the repaired plan
+        from app.analyzer.plan_validator import validate_plan
+        repaired_plan = ExecutionPlan(
+            repository=execution_plan.repository,
+            application=application,
+            build=build,
+            runtime=runtime,
+            environment=execution_plan.environment,
+            services=execution_plan.services,
+            compatibility=execution_plan.compatibility,
+            evidence=execution_plan.evidence,
+            created_at=execution_plan.created_at,
+        )
+
+        validation = validate_plan(repaired_plan)
+        if not validation.valid:
+            logger.warning(
+                "repair.repaired_plan_invalid",
+                extra={"errors": validation.errors},
+            )
+            # Return original plan if repaired plan is invalid
+            return execution_plan
+
+        return repaired_plan
+
+    async def _attempt_build_repair(
+        self,
+        deployment_id: str,
+        execution_plan: ExecutionPlan,
+        build_error: str,
+        file_names: list[str],
+        result: DeploymentResult,
+        snapshot: RepositorySnapshot,
+        start_time: datetime,
+    ) -> Optional[ExecutionPlan]:
+        """Attempt to repair a build failure.
+
+        Args:
+            deployment_id: Deployment identifier.
+            execution_plan: The failed execution plan.
+            build_error: The build error message.
+            file_names: Key file names in the repo.
+            result: The deployment result to update.
+            snapshot: Repository snapshot for retry.
+            start_time: Deployment start time.
+
+        Returns:
+            Repaired ExecutionPlan if repair succeeded, None otherwise.
+        """
+        if not self.repair_loop.can_repair("build"):
+            return None
+
+        repair_context = self._build_repair_context(
+            execution_plan=execution_plan,
+            failure_stage="build",
+            failure_error=build_error,
+            file_names=file_names,
+        )
+
+        for attempt in range(self.repair_loop.max_attempts()):
+            result.repair_attempted = True
+            result.repair_attempts = attempt + 1
+
+            self._log_stage_start(deployment_id, "repairing", {
+                "attempt": attempt,
+                "failure_stage": "build",
+            })
+
+            repair_result = self.repair_loop.attempt_repair(repair_context, attempt)
+
+            if repair_result.proposal is None:
+                # No proposal — either unsupported or engine error
+                result.repair_final_result = "no_proposal"
+                self._log_stage_complete(deployment_id, "repairing", {
+                    "attempt": attempt,
+                    "result": "no_proposal",
+                    "error": repair_result.error,
+                })
+                break
+
+            if not repair_result.accepted:
+                # Proposal rejected by validator
+                result.repair_proposal_type = repair_result.proposal.repair_type.value
+                result.repair_final_result = "rejected"
+                self._log_stage_complete(deployment_id, "repairing", {
+                    "attempt": attempt,
+                    "result": "rejected",
+                    "repair_type": repair_result.proposal.repair_type.value,
+                    "reject_reason": repair_result.reject_reason,
+                })
+                break
+
+            # Proposal accepted — apply it
+            result.repair_proposal_type = repair_result.proposal.repair_type.value
+            repaired_plan = self._apply_repair_proposal(execution_plan, repair_result.proposal)
+
+            self._log_stage_complete(deployment_id, "repairing", {
+                "attempt": attempt,
+                "result": "accepted",
+                "repair_type": repair_result.proposal.repair_type.value,
+                "target": repair_result.proposal.target,
+                "proposed_value": repair_result.proposal.proposed_value,
+            })
+
+            # Return the repaired plan for retry
+            return repaired_plan
+
+        # All attempts exhausted or no repair possible
+        if result.repair_final_result is None:
+            result.repair_final_result = "exhausted"
+        return None
+
+    async def _attempt_health_repair(
+        self,
+        deployment_id: str,
+        execution_plan: ExecutionPlan,
+        health_error: str,
+        file_names: list[str],
+        result: DeploymentResult,
+    ) -> Optional[ExecutionPlan]:
+        """Attempt to repair a health check failure.
+
+        Args:
+            deployment_id: Deployment identifier.
+            execution_plan: The failed execution plan.
+            health_error: The health check error message.
+            file_names: Key file names in the repo.
+            result: The deployment result to update.
+
+        Returns:
+            Repaired ExecutionPlan if repair succeeded, None otherwise.
+        """
+        if not self.repair_loop.can_repair("health_checking"):
+            return None
+
+        repair_context = self._build_repair_context(
+            execution_plan=execution_plan,
+            failure_stage="health_checking",
+            failure_error=health_error,
+            file_names=file_names,
+        )
+
+        for attempt in range(self.repair_loop.max_attempts()):
+            result.repair_attempted = True
+            result.repair_attempts = attempt + 1
+
+            self._log_stage_start(deployment_id, "repairing", {
+                "attempt": attempt,
+                "failure_stage": "health_checking",
+            })
+
+            repair_result = self.repair_loop.attempt_repair(repair_context, attempt)
+
+            if repair_result.proposal is None:
+                result.repair_final_result = "no_proposal"
+                self._log_stage_complete(deployment_id, "repairing", {
+                    "attempt": attempt,
+                    "result": "no_proposal",
+                    "error": repair_result.error,
+                })
+                break
+
+            if not repair_result.accepted:
+                result.repair_proposal_type = repair_result.proposal.repair_type.value
+                result.repair_final_result = "rejected"
+                self._log_stage_complete(deployment_id, "repairing", {
+                    "attempt": attempt,
+                    "result": "rejected",
+                    "repair_type": repair_result.proposal.repair_type.value,
+                    "reject_reason": repair_result.reject_reason,
+                })
+                break
+
+            # Proposal accepted — apply it
+            result.repair_proposal_type = repair_result.proposal.repair_type.value
+            repaired_plan = self._apply_repair_proposal(execution_plan, repair_result.proposal)
+
+            self._log_stage_complete(deployment_id, "repairing", {
+                "attempt": attempt,
+                "result": "accepted",
+                "repair_type": repair_result.proposal.repair_type.value,
+                "target": repair_result.proposal.target,
+                "proposed_value": repair_result.proposal.proposed_value,
+            })
+
+            return repaired_plan
+
+        if result.repair_final_result is None:
+            result.repair_final_result = "exhausted"
+        return None

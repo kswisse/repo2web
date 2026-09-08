@@ -728,3 +728,344 @@ class TestRepairIntegration:
             r.error and "exceeded" in r.error.lower()
             for r in results
         )
+
+
+class TestOrchestratorRepairIntegration:
+    """Tests for RepairLoop integration in DeploymentOrchestrator."""
+
+    def _make_plan(self, framework="node", language="javascript",
+                   package_manager="npm", start_command="npm start",
+                   port=3000, health_check_path="/", install_command="npm install",
+                   build_command="npm run build"):
+        """Helper to create an ExecutionPlan with correct types."""
+        from app.analyzer.types import (
+            ApplicationInfo, BuildInfo, RuntimeInfo, RepositoryInfo,
+            CompatibilityResult, ExecutionPlan, DetectedSignal,
+        )
+        return ExecutionPlan(
+            repository=RepositoryInfo(
+                url="https://github.com/test/repo",
+                owner="test", repo="repo",
+                commit_sha="abc123",
+            ),
+            application=ApplicationInfo(
+                language=language, framework=framework,
+                framework_version=None, confidence="HIGH",
+            ),
+            build=BuildInfo(
+                package_manager=package_manager,
+                install_command=install_command,
+                build_command=build_command,
+                working_directory=".",
+            ),
+            runtime=RuntimeInfo(
+                start_command=start_command,
+                port=port,
+                host="0.0.0.0",
+                health_check_path=health_check_path,
+            ),
+            compatibility=CompatibilityResult(
+                status="SUPPORTED", confidence="HIGH",
+            ),
+            evidence=[DetectedSignal(
+                field="config_file", value="package.json",
+                confidence="HIGH", evidence=["package.json exists"],
+            )],
+            created_at="2026-01-01T00:00:00Z",
+        )
+
+    def test_build_repair_context_from_plan(self):
+        """_build_repair_context creates bounded context from ExecutionPlan."""
+        from app.orchestrator.orchestrator import DeploymentOrchestrator
+        plan = self._make_plan()
+        orch = DeploymentOrchestrator.__new__(DeploymentOrchestrator)
+        ctx = orch._build_repair_context(
+            execution_plan=plan,
+            failure_stage="build",
+            failure_error="npm install failed",
+            file_names=["package.json", "index.js"],
+        )
+        assert ctx.framework == "node"
+        assert ctx.language == "javascript"
+        assert ctx.failure_stage == "build"
+        assert ctx.failure_error == "npm install failed"
+        assert ctx.file_names == ["package.json", "index.js"]
+        assert ctx.repository_url == "https://github.com/test/repo"
+
+    def test_build_repair_context_truncates_error(self):
+        """_build_repair_context truncates long error messages to 500 chars."""
+        from app.orchestrator.orchestrator import DeploymentOrchestrator
+        plan = self._make_plan()
+        orch = DeploymentOrchestrator.__new__(DeploymentOrchestrator)
+        ctx = orch._build_repair_context(
+            execution_plan=plan,
+            failure_stage="build",
+            failure_error="x" * 1000,
+            file_names=[],
+        )
+        assert len(ctx.failure_error) == 500
+
+    def test_apply_repair_proposal_framework(self):
+        """_apply_repair_proposal creates new plan with repaired framework."""
+        from app.orchestrator.orchestrator import DeploymentOrchestrator
+        from app.repair.types import RepairProposal, RepairType
+        plan = self._make_plan()
+        proposal = RepairProposal(
+            repair_type=RepairType.FRAMEWORK_DETECTION,
+            target="framework",
+            original_value="node",
+            proposed_value="express",
+            confidence="HIGH",
+            rationale="package.json has express dependency",
+        )
+        orch = DeploymentOrchestrator.__new__(DeploymentOrchestrator)
+        repaired = orch._apply_repair_proposal(plan, proposal)
+        assert repaired.application.framework == "express"
+        assert repaired.runtime.start_command == plan.runtime.start_command
+        assert repaired.build.package_manager == plan.build.package_manager
+
+    def test_apply_repair_proposal_start_command(self):
+        """_apply_repair_proposal creates new plan with repaired start command."""
+        from app.orchestrator.orchestrator import DeploymentOrchestrator
+        from app.repair.types import RepairProposal, RepairType
+        plan = self._make_plan(
+            framework="flask", language="python",
+            package_manager="pip", start_command="python app.py",
+            port=5000, health_check_path="/api/health",
+            install_command="pip install",
+        )
+        proposal = RepairProposal(
+            repair_type=RepairType.START_COMMAND,
+            target="start_command",
+            original_value="python app.py",
+            proposed_value="flask run --host 0.0.0.0 --port $PORT",
+            confidence="HIGH",
+            rationale="Standard Flask start command",
+        )
+        orch = DeploymentOrchestrator.__new__(DeploymentOrchestrator)
+        repaired = orch._apply_repair_proposal(plan, proposal)
+        assert repaired.runtime.start_command == "flask run --host 0.0.0.0 --port $PORT"
+        assert repaired.runtime.port == 5000
+        assert repaired.runtime.health_check_path == "/api/health"
+
+    def test_apply_repair_proposal_returns_original_on_validation_failure(self):
+        """_apply_repair_proposal returns original plan if repaired plan is invalid."""
+        from app.orchestrator.orchestrator import DeploymentOrchestrator
+        from app.repair.types import RepairProposal, RepairType
+        plan = self._make_plan(
+            framework="flask", language="python",
+            package_manager="pip", start_command="python app.py",
+            port=5000, health_check_path="/",
+            install_command="pip install",
+        )
+        proposal = RepairProposal(
+            repair_type=RepairType.PORT,
+            target="port",
+            original_value="5000",
+            proposed_value="0",
+            confidence="HIGH",
+            rationale="Invalid port",
+        )
+        orch = DeploymentOrchestrator.__new__(DeploymentOrchestrator)
+        result = orch._apply_repair_proposal(plan, proposal)
+        assert result.runtime.port == 5000
+
+    def test_deploy_repair_fields_populated_on_success(self):
+        """Successful deployment has repair fields at defaults."""
+        import asyncio
+        from unittest.mock import AsyncMock, MagicMock, patch
+        from app.orchestrator.orchestrator import DeploymentOrchestrator
+        from app.orchestrator.states import DeploymentState
+
+        async def run():
+            orch = DeploymentOrchestrator.__new__(DeploymentOrchestrator)
+            orch.fetcher = AsyncMock()
+            orch.cleanup = AsyncMock()
+            orch.build_executor = AsyncMock()
+            orch.runtime_executor = AsyncMock()
+            orch.health_checker = AsyncMock()
+
+            snapshot = MagicMock()
+            snapshot.local_path = "/tmp/repo"
+            snapshot.commit_sha = "abc123"
+            snapshot.owner = "test"
+            snapshot.repository = "repo"
+            orch.fetcher.create_snapshot = AsyncMock(return_value=snapshot)
+
+            plan = self._make_plan()
+
+            with patch('app.orchestrator.orchestrator.analyze_repository', return_value=plan):
+                with patch('app.analyzer.file_inventory.scan_repository') as mock_scan:
+                    mock_inv = MagicMock()
+                    mock_inv.files = ["package.json", "index.js"]
+                    mock_scan.return_value = mock_inv
+
+                    build_result = MagicMock()
+                    build_result.success = True
+                    build_result.container_id = "build-123"
+                    orch.build_executor.execute_build = AsyncMock(return_value=build_result)
+
+                    runtime_instance = MagicMock()
+                    runtime_instance.container_id = "app-123"
+                    runtime_instance.internal_url = "http://localhost:3000"
+                    orch.runtime_executor.start_runtime = AsyncMock(return_value=runtime_instance)
+
+                    health = MagicMock()
+                    health.status = "healthy"
+                    health.response_time_ms = 50
+                    orch.health_checker.check_health = AsyncMock(return_value=health)
+
+                    result = await orch.deploy(
+                        deployment_id="test-deploy",
+                        repository_url="https://github.com/test/repo",
+                    )
+
+                    assert result.state == DeploymentState.RUNNING
+                    assert result.repair_attempted is False
+                    assert result.repair_attempts == 0
+                    assert result.repair_final_result is None
+
+        asyncio.run(run())
+
+    def test_deploy_triggers_repair_on_build_failure(self):
+        """Build failure triggers repair attempt when possible."""
+        import asyncio
+        from unittest.mock import AsyncMock, MagicMock, patch
+        from app.orchestrator.orchestrator import DeploymentOrchestrator
+        from app.orchestrator.states import DeploymentState
+        from app.repair.types import RepairResult, RepairProposal, RepairType
+
+        async def run():
+            orch = DeploymentOrchestrator.__new__(DeploymentOrchestrator)
+            orch.fetcher = AsyncMock()
+            orch.cleanup = AsyncMock()
+            orch.build_executor = AsyncMock()
+            orch.runtime_executor = AsyncMock()
+            orch.health_checker = AsyncMock()
+
+            snapshot = MagicMock()
+            snapshot.local_path = "/tmp/repo"
+            snapshot.commit_sha = "abc123"
+            snapshot.owner = "test"
+            snapshot.repository = "repo"
+            orch.fetcher.create_snapshot = AsyncMock(return_value=snapshot)
+
+            plan = self._make_plan()
+
+            with patch('app.orchestrator.orchestrator.analyze_repository', return_value=plan):
+                with patch('app.analyzer.file_inventory.scan_repository') as mock_scan:
+                    mock_inv = MagicMock()
+                    mock_inv.files = ["package.json"]
+                    mock_scan.return_value = mock_inv
+
+                    failed_build = MagicMock()
+                    failed_build.success = False
+                    failed_build.error = "npm ERR! code ERESOLVE"
+
+                    proposal = RepairProposal(
+                        repair_type=RepairType.START_COMMAND,
+                        target="start_command",
+                        original_value="npm start",
+                        proposed_value="node server.js",
+                        confidence="HIGH",
+                        rationale="Standard Node.js start",
+                    )
+                    repair_result = RepairResult(
+                        attempt=0,
+                        accepted=True,
+                        applied=False,
+                        proposal=proposal,
+                        plan_repaired=None,
+                    )
+
+                    orch.repair_loop = MagicMock()
+                    orch.repair_loop.can_repair.return_value = True
+                    orch.repair_loop.attempt_repair.return_value = repair_result
+                    orch.repair_loop.max_attempts.return_value = 3
+
+                    success_build = MagicMock()
+                    success_build.success = True
+                    success_build.container_id = "build-456"
+
+                    runtime_inst = MagicMock()
+                    runtime_inst.container_id = "app-456"
+                    runtime_inst.internal_url = "http://localhost:3000"
+
+                    health = MagicMock()
+                    health.status = "healthy"
+                    health.response_time_ms = 40
+
+                    orch.build_executor.execute_build = AsyncMock(
+                        side_effect=[failed_build, success_build]
+                    )
+                    orch.runtime_executor.start_runtime = AsyncMock(return_value=runtime_inst)
+                    orch.health_checker.check_health = AsyncMock(return_value=health)
+
+                    result = await orch.deploy(
+                        deployment_id="test-repair",
+                        repository_url="https://github.com/test/repo",
+                    )
+
+                    assert result.state == DeploymentState.RUNNING
+                    assert result.repair_attempted is True
+                    assert result.repair_attempts == 1
+                    assert result.repair_proposal_type == "start_command"
+                    assert result.repair_final_result is None
+
+        asyncio.run(run())
+
+    def test_deploy_unsupported_failure_skips_repair(self):
+        """Unsupported failure stage skips repair."""
+        import asyncio
+        from unittest.mock import AsyncMock, MagicMock, patch
+        from app.orchestrator.orchestrator import DeploymentOrchestrator
+        from app.orchestrator.states import DeploymentState
+
+        async def run():
+            orch = DeploymentOrchestrator.__new__(DeploymentOrchestrator)
+            orch.fetcher = AsyncMock()
+            orch.cleanup = AsyncMock()
+            orch.build_executor = AsyncMock()
+            orch.runtime_executor = AsyncMock()
+            orch.health_checker = AsyncMock()
+
+            snapshot = MagicMock()
+            snapshot.local_path = "/tmp/repo"
+            snapshot.commit_sha = "abc123"
+            snapshot.owner = "test"
+            snapshot.repository = "repo"
+            orch.fetcher.create_snapshot = AsyncMock(return_value=snapshot)
+
+            plan = self._make_plan(
+                framework="flask", language="python",
+                package_manager="pip", start_command="python app.py",
+                port=5000, health_check_path="/",
+                install_command="pip install",
+            )
+
+            with patch('app.orchestrator.orchestrator.analyze_repository', return_value=plan):
+                with patch('app.analyzer.file_inventory.scan_repository') as mock_scan:
+                    mock_inv = MagicMock()
+                    mock_inv.files = ["app.py"]
+                    mock_scan.return_value = mock_inv
+
+                    failed_build = MagicMock()
+                    failed_build.success = False
+                    failed_build.error = "Segmentation fault"
+
+                    orch.repair_loop = MagicMock()
+                    orch.repair_loop.can_repair.return_value = False
+
+                    orch.build_executor.execute_build = AsyncMock(return_value=failed_build)
+
+                    result = await orch.deploy(
+                        deployment_id="test-no-repair",
+                        repository_url="https://github.com/test/repo",
+                    )
+
+                    assert result.state == DeploymentState.BUILD_FAILED
+                    assert result.repair_attempted is False
+                    assert result.repair_final_result == "unsupported"
+
+        asyncio.run(run())
+
