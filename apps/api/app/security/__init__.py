@@ -20,6 +20,8 @@ from .validation import (
     validate_commit_sha as validate_commit_sha_format,
     validate_github_url,
     validate_docker_image,
+    sanitize_shell_argument,
+    SHELL_METACHARACTERS,
 )
 from .ssrf import validate_url_ssrf, validate_url_ssrf_async, is_ip_blocked, resolve_hostname, BLOCKED_IP_RANGES
 from .secrets import (

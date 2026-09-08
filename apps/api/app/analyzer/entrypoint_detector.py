@@ -9,6 +9,9 @@ from typing import Optional
 
 from app.analyzer.types import DetectedSignal
 
+# Valid Python module path pattern (no shell metacharacters)
+SAFE_MODULE_PATTERN = re.compile(r"^[a-zA-Z0-9_][a-zA-Z0-9_\.]*$")
+
 
 @dataclass(frozen=True)
 class EntrypointDetection:
@@ -17,6 +20,20 @@ class EntrypointDetection:
     command: str
     confidence: str  # HIGH, MEDIUM, LOW
     evidence: list[str]
+
+
+def _validate_module_name(module: str) -> Optional[str]:
+    """Validate that a module name is safe (no shell metacharacters).
+    
+    Returns the module name if safe, None if not.
+    """
+    if not module:
+        return None
+    if not SAFE_MODULE_PATTERN.match(module):
+        return None
+    if len(module) > 200:
+        return None
+    return module
 
 
 # Node.js entrypoint patterns
@@ -176,12 +193,13 @@ def _detect_python_entrypoint(
         # Look for uvicorn command
         match = re.search(r"uvicorn\s+([^\s:]+(?:\.[^\s:]+)*):app", readme)
         if match:
-            module = match.group(1)
-            return EntrypointDetection(
-                command=f"uvicorn {module}:app --host 0.0.0.0 --port 8000",
-                confidence="HIGH",
-                evidence=["Found uvicorn command in README"],
-            )
+            module = _validate_module_name(match.group(1))
+            if module:
+                return EntrypointDetection(
+                    command=f"uvicorn {module}:app --host 0.0.0.0 --port 8000",
+                    confidence="HIGH",
+                    evidence=["Found uvicorn command in README"],
+                )
 
         # Look for flask run
         if "flask run" in readme:
@@ -195,11 +213,12 @@ def _detect_python_entrypoint(
         match = re.search(r"streamlit\s+run\s+([^\s]+)", readme)
         if match:
             entry_file = match.group(1)
-            return EntrypointDetection(
-                command=f"streamlit run {entry_file}",
-                confidence="HIGH",
-                evidence=["Found streamlit run command in README"],
-            )
+            if _validate_module_name(entry_file):
+                return EntrypointDetection(
+                    command=f"streamlit run {entry_file}",
+                    confidence="HIGH",
+                    evidence=["Found streamlit run command in README"],
+                )
 
         # Look for django runserver
         if "python manage.py runserver" in readme:

@@ -1,9 +1,44 @@
+import re
 from datetime import datetime, timezone
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.deployment_log import DeploymentLog
+
+# Maximum allowed log message length to prevent database exhaustion
+MAX_LOG_MESSAGE_LENGTH = 10000
+
+# ANSI escape sequence pattern
+ANSI_ESCAPE_PATTERN = re.compile(r"\x1B\[[0-9;]*[a-zA-Z]|\x1B\].*?\x07")
+
+# Control characters to strip (except newline and tab)
+CONTROL_CHAR_PATTERN = re.compile(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]")
+
+
+def sanitize_log_message(message: str) -> str:
+    """
+    Sanitize a log message for safe storage.
+    
+    - Strips ANSI escape sequences
+    - Strips dangerous control characters
+    - Truncates to maximum length
+    - Preserves newlines and tabs for readability
+    """
+    if not message:
+        return ""
+    
+    # Strip ANSI escape sequences
+    message = ANSI_ESCAPE_PATTERN.sub("", message)
+    
+    # Strip dangerous control characters (keep \n and \t)
+    message = CONTROL_CHAR_PATTERN.sub("", message)
+    
+    # Truncate to maximum length
+    if len(message) > MAX_LOG_MESSAGE_LENGTH:
+        message = message[:MAX_LOG_MESSAGE_LENGTH] + "\n[TRUNCATED]"
+    
+    return message
 
 
 class DeploymentLogService:
@@ -17,7 +52,10 @@ class DeploymentLogService:
         level: str, 
         message: str,
     ) -> DeploymentLog:
-        """Persist a deployment log entry."""
+        """Persist a deployment log entry with sanitization."""
+        # Sanitize the message
+        message = sanitize_log_message(message)
+        
         # Get next sequence number
         result = await self.db.execute(
             select(func.coalesce(func.max(DeploymentLog.sequence), 0))

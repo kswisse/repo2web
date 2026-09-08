@@ -108,6 +108,7 @@ class TestDockerSecurity:
             "network_mode": "bridge",
             "security_opt": ["no-new-privileges:true"],
             "volumes": [],
+            "cap_drop": ["ALL"],
         }
         violations = validate_docker_config(config)
         assert len(violations) == 0

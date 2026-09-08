@@ -5,6 +5,7 @@ Integrates with security layer for policy enforcement.
 """
 
 import logging
+import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
@@ -23,6 +24,40 @@ from app.security import (
     validate_url,
     RepositoryPolicy,
     DEFAULT_REPO_POLICY,
+)
+from app.security.validation import SHELL_METACHARACTERS
+
+# Maximum allowed command length to prevent buffer-based attacks
+MAX_COMMAND_LENGTH = 2000
+
+# Allowed command prefixes for build steps (defense-in-depth allowlist)
+ALLOWED_BUILD_COMMAND_PREFIXES = (
+    "pip install", "pip3 install",
+    "npm install", "npm ci", "npx",
+    "yarn install", "yarn add",
+    "pnpm install", "pnpm add",
+    "gem install", "bundle install",
+    "go install", "go build",
+    "cargo build", "cargo install",
+    "mvn", "gradle",
+    "make", "cmake",
+    "gcc", "g++", "clang",
+    "mkdir", "cp", "mv", "ln",
+    "echo", "cat", "head", "tail",
+    "sed", "awk", "grep",
+    "node", "python", "python3", "ruby", "java", "go",
+    "uvicorn", "gunicorn", "streamlit", "flask",
+    "npm start", "npm run",
+)
+
+# Allowed runtime command prefixes
+ALLOWED_RUNTIME_COMMAND_PREFIXES = (
+    "python", "python3", "node", "java", "ruby", "go",
+    "uvicorn", "gunicorn", "streamlit", "flask",
+    "npm start", "npm run", "npx",
+    "yarn start", "yarn run",
+    "pnpm start", "pnpm run",
+    "pm2", "forever",
 )
 
 from .base import ContainerRuntime, ContainerConfig, ContainerStatus
@@ -328,22 +363,72 @@ class BuildExecutor:
         return violations
     
     def _generate_build_commands(self, execution_plan: dict, build_dir: str) -> list[str]:
-        """Generate build commands from execution plan."""
+        """Generate build commands from execution plan.
+        
+        Validates each command against security policy:
+        - Rejects commands with shell metacharacters
+        - Enforces command length limits
+        - Validates command prefixes against allowlist
+        """
         commands = []
         
-        # Add setup commands
+        # Add setup commands (these are safe, hardcoded)
         commands.append("mkdir -p /workspace")
         commands.append(f"cp -r {build_dir}/* /workspace/")
         
-        # Add install steps
+        # Validate and add install steps
         for step in execution_plan.get("install_steps", []):
-            commands.append(step.get("command", ""))
+            cmd = step.get("command", "")
+            if cmd:
+                validated_cmd = self._validate_build_command(cmd)
+                commands.append(validated_cmd)
         
-        # Add build steps
+        # Validate and add build steps
         for step in execution_plan.get("build_steps", []):
-            commands.append(step.get("command", ""))
+            cmd = step.get("command", "")
+            if cmd:
+                validated_cmd = self._validate_build_command(cmd)
+                commands.append(validated_cmd)
         
-        return [cmd for cmd in commands if cmd]
+        return commands
+    
+    def _validate_build_command(self, cmd: str) -> str:
+        """Validate a build command for security.
+        
+        Args:
+            cmd: The build command to validate
+            
+        Returns:
+            The validated command
+            
+        Raises:
+            SecurityPolicyViolationError: If command is dangerous
+        """
+        if not cmd or not cmd.strip():
+            raise SecurityPolicyViolationError("Empty build command")
+        
+        cmd = cmd.strip()
+        
+        # Enforce command length limit
+        if len(cmd) > MAX_COMMAND_LENGTH:
+            raise SecurityPolicyViolationError(
+                f"Build command exceeds maximum length of {MAX_COMMAND_LENGTH}"
+            )
+        
+        # Block shell metacharacters (injection prevention)
+        if SHELL_METACHARACTERS.search(cmd):
+            raise SecurityPolicyViolationError(
+                f"Build command contains shell metacharacters: {cmd!r}"
+            )
+        
+        # Validate command starts with an allowed prefix
+        cmd_lower = cmd.lower()
+        if not any(cmd_lower.startswith(prefix) for prefix in ALLOWED_BUILD_COMMAND_PREFIXES):
+            raise SecurityPolicyViolationError(
+                f"Build command not in allowlist: {cmd!r}"
+            )
+        
+        return cmd
     
     def _select_base_image(self, execution_plan: dict) -> str:
         """Select appropriate base image based on execution plan."""
@@ -451,8 +536,9 @@ class RuntimeExecutor:
                     f"Network policy violations: {network_violations}"
                 )
             
-            # 4. Generate run command from execution plan
+            # 4. Validate run command from execution plan
             run_command = execution_plan.get("run_command", "python app.py")
+            self._validate_runtime_command(run_command)
             
             # 5. Create container configuration
             container_config = ContainerConfig(
@@ -589,3 +675,41 @@ class RuntimeExecutor:
                     violations.append(f"Blocked port {port} allowed in egress rules")
         
         return violations
+    
+    def _validate_runtime_command(self, cmd: str) -> str:
+        """Validate a runtime command for security.
+        
+        Args:
+            cmd: The runtime command to validate
+            
+        Returns:
+            The validated command
+            
+        Raises:
+            SecurityPolicyViolationError: If command is dangerous
+        """
+        if not cmd or not cmd.strip():
+            raise SecurityPolicyViolationError("Empty runtime command")
+        
+        cmd = cmd.strip()
+        
+        # Enforce command length limit
+        if len(cmd) > MAX_COMMAND_LENGTH:
+            raise SecurityPolicyViolationError(
+                f"Runtime command exceeds maximum length of {MAX_COMMAND_LENGTH}"
+            )
+        
+        # Block shell metacharacters (injection prevention)
+        if SHELL_METACHARACTERS.search(cmd):
+            raise SecurityPolicyViolationError(
+                f"Runtime command contains shell metacharacters: {cmd!r}"
+            )
+        
+        # Validate command starts with an allowed prefix
+        cmd_lower = cmd.lower()
+        if not any(cmd_lower.startswith(prefix) for prefix in ALLOWED_RUNTIME_COMMAND_PREFIXES):
+            raise SecurityPolicyViolationError(
+                f"Runtime command not in allowlist: {cmd!r}"
+            )
+        
+        return cmd

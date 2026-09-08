@@ -185,12 +185,177 @@ def scan_repository(root_path: str) -> FileInventory:
             except Exception:
                 key_files[key_file] = None
 
+    # Detect monorepo structure
+    is_monorepo, monorepo_packages = _detect_monorepo(root, files, key_files)
+
+    # For monorepos, also read subdirectory package.json files
+    if is_monorepo:
+        _read_monorepo_packages(root, files, key_files, monorepo_packages)
+
     return FileInventory(
         root=str(root),
         files=files,
         key_files=key_files,
         ignored_dirs=list(IGNORED_DIRS),
+        is_monorepo=is_monorepo,
+        monorepo_packages=monorepo_packages,
     )
+
+
+def _detect_monorepo(
+    root: Path, files: list[str], key_files: dict[str, Optional[str]]
+) -> tuple[bool, list[str]]:
+    """Detect if the repository is a monorepo.
+
+    Returns (is_monorepo, list_of_package_paths).
+    """
+    import re
+
+    packages = []
+
+    def _expand_glob_pattern(pattern: str, files_list: list[str]) -> list[str]:
+        """Expand a glob pattern like 'packages/*' against the file list."""
+        result = []
+        # Normalize pattern to use forward slashes
+        pattern_norm = pattern.replace("\\", "/")
+        base = pattern_norm.split("*")[0]
+
+        for f in files_list:
+            # Normalize file path to forward slashes for comparison
+            f_norm = f.replace("\\", "/")
+            if f_norm.startswith(base) and f_norm.endswith("package.json"):
+                # Get the full relative path from base
+                relative_to_base = f_norm[len(base):]  # e.g., "my-app/package.json"
+                pkg_dir = str(Path(relative_to_base).parent)  # e.g., "my-app"
+                # If base is "packages/", the full path is "packages/my-app"
+                full_pkg_dir = str(Path(base) / pkg_dir) if pkg_dir != "." else base.rstrip("/")
+                if full_pkg_dir not in result:
+                    result.append(full_pkg_dir)
+        return result
+
+    # Check for pnpm workspace
+    if "pnpm-workspace.yaml" in key_files:
+        content = key_files["pnpm-workspace.yaml"] or ""
+        for match in re.finditer(r"-\s+[\"']?([^\"'\s]+)[\"']?", content):
+            pkg_pattern = match.group(1)
+            if "*" in pkg_pattern:
+                found = _expand_glob_pattern(pkg_pattern, files)
+                for pkg_dir in found:
+                    if pkg_dir not in packages:
+                        packages.append(pkg_dir)
+            elif pkg_pattern.endswith("package.json"):
+                if pkg_pattern not in packages:
+                    packages.append(pkg_pattern)
+
+    # Check for npm/yarn workspaces in root package.json
+    root_pkg = key_files.get("package.json")
+    if root_pkg:
+        try:
+            import json
+            pkg_data = json.loads(root_pkg)
+            workspaces = pkg_data.get("workspaces")
+            if workspaces:
+                if isinstance(workspaces, list):
+                    for ws in workspaces:
+                        if "*" in ws:
+                            found = _expand_glob_pattern(ws, files)
+                            for pkg_dir in found:
+                                if pkg_dir not in packages:
+                                    packages.append(pkg_dir)
+                        elif ws.endswith("package.json"):
+                            if ws not in packages:
+                                packages.append(ws)
+                        else:
+                            # It's a directory pattern
+                            ws_path = root / ws
+                            if ws_path.is_dir():
+                                for child in sorted(ws_path.iterdir()):
+                                    if child.is_dir() and (child / "package.json").exists():
+                                        pkg_dir = str(child.relative_to(root))
+                                        if pkg_dir not in packages:
+                                            packages.append(pkg_dir)
+        except (json.JSONDecodeError, KeyError):
+            pass
+
+    # Check for lerna.json
+    if "lerna.json" in files:
+        try:
+            import json
+            lerna_path = root / "lerna.json"
+            with open(lerna_path) as f:
+                lerna_data = json.load(f)
+            lerna_packages = lerna_data.get("packages", [])
+            for lp in lerna_packages:
+                if "*" in lp:
+                    found = _expand_glob_pattern(lp, files)
+                    for pkg_dir in found:
+                        if pkg_dir not in packages:
+                            packages.append(pkg_dir)
+        except (json.JSONDecodeError, FileNotFoundError):
+            pass
+
+    # Check for nx.json
+    if "nx.json" in files:
+        for f in files:
+            if f.endswith("project.json") and f != "project.json":
+                pkg_dir = str(Path(f).parent)
+                if pkg_dir not in packages:
+                    packages.append(pkg_dir)
+
+    return len(packages) > 0, packages
+
+
+def _read_monorepo_packages(
+    root: Path,
+    files: list[str],
+    key_files: dict[str, Optional[str]],
+    packages: list[str],
+) -> None:
+    """Read package.json files from monorepo subdirectories.
+
+    Adds them to key_files with a prefix to avoid overwriting root package.json.
+    Also creates merged dependency view.
+    """
+    import json
+
+    all_deps = {}
+    all_scripts = {}
+
+    for pkg_path in packages:
+        pkg_file = root / pkg_path / "package.json"
+        if pkg_file.exists():
+            try:
+                content = pkg_file.read_text(encoding="utf-8", errors="ignore")
+                pkg_data = json.loads(content)
+                deps = pkg_data.get("dependencies", {})
+                scripts = pkg_data.get("scripts", {})
+                all_deps.update(deps)
+                all_scripts.update(scripts)
+
+                # Store with prefix for individual access
+                key_file_name = f"monorepo:{pkg_path}/package.json"
+                key_files[key_file_name] = content
+            except (json.JSONDecodeError, Exception):
+                pass
+
+    # If root package.json has workspaces, merge sub-package deps into root deps
+    # This helps the framework detector find dependencies across the monorepo
+    root_pkg_content = key_files.get("package.json")
+    if root_pkg_content:
+        try:
+            root_pkg = json.loads(root_pkg_content)
+            root_deps = root_pkg.get("dependencies", {})
+            root_deps.update(all_deps)  # Merge sub-package deps
+            root_pkg["dependencies"] = root_deps
+
+            root_scripts = root_pkg.get("scripts", {})
+            root_scripts.update(all_scripts)
+            root_pkg["scripts"] = root_scripts
+
+            # Update the key_files with merged content
+            key_files["package.json"] = json.dumps(root_pkg, indent=2)
+        except (json.JSONDecodeError, KeyError):
+            pass
 
 
 def _should_ignore(rel_path: str) -> bool:

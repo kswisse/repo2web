@@ -217,24 +217,59 @@ def parse_pipfile(content: str) -> Optional[ManifestData]:
 def detect_package_manager(key_files: dict[str, Optional[str]]) -> str:
     """Detect the package manager from key files.
 
+    Checks for lockfiles first (most reliable), then falls back to manifest files.
+    Also checks for monorepo-specific lockfiles.
+
     Args:
         key_files: Dictionary of key file contents.
 
     Returns:
         Package manager name.
     """
+    # Check lockfiles first (most reliable indicator)
     if "pnpm-lock.yaml" in key_files:
         return "pnpm"
     if "yarn.lock" in key_files:
         return "yarn"
     if "package-lock.json" in key_files:
         return "npm"
-    if "package.json" in key_files:
-        return "npm"
     if "Pipfile.lock" in key_files:
         return "pipenv"
     if "poetry.lock" in key_files:
         return "poetry"
+
+    # Check for monorepo lockfiles (keys with monorepo: prefix)
+    for key in key_files:
+        if key.startswith("monorepo:") and key.endswith("pnpm-lock.yaml"):
+            return "pnpm"
+        if key.startswith("monorepo:") and key.endswith("yarn.lock"):
+            return "yarn"
+        if key.startswith("monorepo:") and key.endswith("package-lock.json"):
+            return "npm"
+
+    # Check manifest files
+    if "package.json" in key_files:
+        # Check if it's a monorepo with workspaces
+        import json
+        try:
+            pkg_content = key_files["package.json"]
+            if pkg_content:
+                pkg_data = json.loads(pkg_content)
+                if pkg_data.get("workspaces"):
+                    # Monorepo - check for lockfiles in subdirectories
+                    for key in key_files:
+                        if "pnpm-lock.yaml" in key:
+                            return "pnpm"
+                        if "yarn.lock" in key:
+                            return "yarn"
+                        if "package-lock.json" in key:
+                            return "npm"
+                    # Default to npm for monorepos without clear lockfile
+                    return "npm"
+        except (json.JSONDecodeError, KeyError):
+            pass
+        return "npm"
+
     if "requirements.txt" in key_files:
         return "pip"
     if "pyproject.toml" in key_files:

@@ -9,6 +9,8 @@ import logging
 import platform
 from typing import Optional
 
+from app.security.ssrf import is_ip_blocked
+
 try:
     import docker
     from docker.errors import ImageNotFound, APIError, NotFound
@@ -326,7 +328,12 @@ class DockerContainerRuntime(ContainerRuntime):
         timeout: int = 5,
     ) -> dict:
         """
-        Perform health check on container.
+        Perform health check on container with SSRF protection.
+        
+        Prevents:
+        - Redirect to internal/private IPs
+        - DNS rebinding
+        - SSRF via HTTP redirects
         
         Args:
             container_id: Container ID
@@ -369,11 +376,43 @@ class DockerContainerRuntime(ContainerRuntime):
                     "error": "Could not determine container IP",
                 }
             
-            # Perform HTTP health check
+            # Validate container IP is not in a blocked range
+            if is_ip_blocked(ip_address):
+                return {
+                    "status": "unhealthy",
+                    "error": "Container IP is in blocked range",
+                }
+            
+            # Perform HTTP health check with redirect protection
             url = f"http://{ip_address}:{port}{path}"
             
-            async with httpx.AsyncClient(timeout=timeout) as client:
+            # Disable automatic redirects and limit to 0 redirects
+            # Health check should never redirect to a different host
+            async with httpx.AsyncClient(
+                timeout=timeout,
+                follow_redirects=False,
+                max_redirects=0,
+            ) as client:
                 response = await client.get(url)
+                
+                # If response is a redirect, check the target
+                if 300 <= response.status_code < 400:
+                    redirect_url = response.headers.get("location", "")
+                    if redirect_url:
+                        # Parse redirect URL and check for SSRF
+                        from urllib.parse import urlparse
+                        parsed = urlparse(redirect_url)
+                        if parsed.hostname:
+                            # Check if redirect target is safe
+                            from app.security.ssrf import validate_url_ssrf
+                            is_safe, reason = validate_url_ssrf(
+                                f"https://{parsed.hostname}:{parsed.port or 80}{parsed.path}"
+                            )
+                            if not is_safe:
+                                return {
+                                    "status": "unhealthy",
+                                    "error": f"Health check redirect blocked: {reason}",
+                                }
                 
                 if 200 <= response.status_code < 300:
                     return {

@@ -128,4 +128,19 @@ def validate_docker_config(container_config: dict) -> list[str]:
     if ipc_mode == "host":
         violations.append("IPC mode 'host' is forbidden")
 
+    # Check privileged mode (critical: Docker API uses "privileged" key)
+    privileged = container_config.get("privileged", False)
+    if privileged:
+        violations.append("Privileged mode is forbidden")
+
+    # Check cap_add is empty
+    cap_add = container_config.get("cap_add", [])
+    if cap_add:
+        violations.append(f"Capability addition is forbidden: {cap_add}")
+
+    # Check that cap_drop includes ALL
+    cap_drop = container_config.get("cap_drop", [])
+    if "ALL" not in cap_drop:
+        violations.append("Must drop ALL capabilities")
+
     return violations

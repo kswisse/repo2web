@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "repo2web"
     APP_ENV: str = "development"
     DEBUG: bool = False
-    SECRET_KEY: str = "change-me-in-production"
+    SECRET_KEY: str = ""  # MUST be set via environment variable in production
 
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/repo2web"
 
@@ -32,6 +32,16 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.APP_ENV == "production"
+
+    def validate_for_production(self) -> list[str]:
+        """Validate settings for production deployment."""
+        violations = []
+        if self.is_production:
+            if not self.SECRET_KEY or self.SECRET_KEY == "":
+                violations.append("SECRET_KEY must be set in production")
+            if "localhost" in self.DATABASE_URL:
+                violations.append("DATABASE_URL should not use localhost in production")
+        return violations
 
 
 @lru_cache

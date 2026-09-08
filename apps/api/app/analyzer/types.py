@@ -95,6 +95,8 @@ class FileInventory:
     files: list[str] = field(default_factory=list)
     key_files: dict[str, Optional[str]] = field(default_factory=dict)
     ignored_dirs: list[str] = field(default_factory=list)
+    is_monorepo: bool = False
+    monorepo_packages: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
