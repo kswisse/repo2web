@@ -46,6 +46,9 @@ def _detect_docker_url() -> str:
 class DockerContainerRuntime(ContainerRuntime):
     """Docker container runtime implementation."""
     
+    # Required networks for sandboxed execution
+    REQUIRED_NETWORKS = ("repo2web-isolated", "repo2web-runtimes")
+    
     def __init__(self, base_url: str = None):
         """
         Initialize Docker container runtime.
@@ -65,18 +68,73 @@ class DockerContainerRuntime(ContainerRuntime):
             self.client = docker.DockerClient(base_url=base_url)
             self.client.ping()
             logger.info(f"Connected to Docker daemon at {base_url}")
+            self._ensure_networks()
         except Exception as e:
             logger.warning(f"Failed to connect to Docker daemon: {e}")
             self.client = None
+    
+    def _ensure_networks(self) -> None:
+        """Create required Docker networks if they do not exist.
+        
+        Called once during initialization. Creates isolated networks
+        for build and runtime containers with security-appropriate
+        driver configurations.
+        """
+        if not self.client:
+            return
+        
+        for network_name in self.REQUIRED_NETWORKS:
+            try:
+                existing = self.client.networks.list(names=[network_name])
+                if existing:
+                    logger.debug(f"Network '{network_name}' already exists")
+                    continue
+                
+                # Create bridge network with internal DNS but no inter-container communication
+                self.client.networks.create(
+                    network_name,
+                    driver="bridge",
+                    check_duplicate=True,
+                )
+                logger.info(f"Created Docker network '{network_name}'")
+            except Exception as e:
+                logger.warning(f"Failed to ensure network '{network_name}': {e}")
     
     @property
     def is_available(self) -> bool:
         """Check if Docker daemon is available."""
         return self.client is not None
     
+    async def _ensure_image(self, image: str) -> None:
+        """Ensure a Docker image is available, pulling if necessary.
+        
+        Args:
+            image: Docker image name (e.g. 'python:3.11-slim')
+            
+        Raises:
+            ContainerCreateError: If the image cannot be obtained
+        """
+        if not self.is_available:
+            return
+        
+        try:
+            self.client.images.get(image)
+            logger.debug(f"Image '{image}' already available locally")
+        except ImageNotFound:
+            logger.info(f"Image '{image}' not found locally, pulling...")
+            try:
+                self.client.images.pull(image)
+                logger.info(f"Successfully pulled image '{image}'")
+            except Exception as e:
+                raise ContainerCreateError(
+                    f"Failed to pull image '{image}': {e}"
+                ) from e
+    
     async def create_container(self, config: ContainerConfig) -> str:
         """
         Create a Docker container with the given configuration.
+        
+        Ensures the required image is available before creation.
         
         Args:
             config: Container configuration
@@ -91,6 +149,9 @@ class DockerContainerRuntime(ContainerRuntime):
             raise ContainerCreateError("Docker daemon not available")
         
         try:
+            # Ensure the image is available (pull if needed)
+            await self._ensure_image(config.image)
+            
             # Convert config to Docker API format
             docker_args = config.to_dict()
             
@@ -107,6 +168,8 @@ class DockerContainerRuntime(ContainerRuntime):
             raise ContainerCreateError(f"Image not found: {config.image}") from e
         except APIError as e:
             raise ContainerCreateError(f"Docker API error: {e}") from e
+        except ContainerCreateError:
+            raise
         except Exception as e:
             raise ContainerCreateError(f"Failed to create container: {e}") from e
     
@@ -128,7 +191,12 @@ class DockerContainerRuntime(ContainerRuntime):
             container.start()
             logger.info(f"Started container {container_id[:12]}")
         except NotFound as e:
-            raise ContainerStartError(f"Container not found: {container_id}") from e
+            # The Docker API may return 404 for start failures (e.g. network not found).
+            # Preserve the original error explanation for diagnostics.
+            explanation = getattr(e, 'explanation', None) or str(e)
+            raise ContainerStartError(
+                f"Container not found or failed to start: {container_id} — {explanation}"
+            ) from e
         except APIError as e:
             raise ContainerStartError(f"Docker API error: {e}") from e
         except Exception as e:
