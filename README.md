@@ -1,5 +1,8 @@
 # Repo2Web
 
+[![CI](https://github.com/kswisse/repo2web/actions/workflows/ci.yml/badge.svg)](https://github.com/kswisse/repo2web/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Convert GitHub repositories into runnable web applications.
 
 ## Architecture

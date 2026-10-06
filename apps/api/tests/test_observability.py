@@ -7,6 +7,7 @@ and API serialization of observability data.
 
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -316,22 +317,19 @@ class TestDeploymentSchemas:
 class TestFrontendTypes:
     """Verify frontend TypeScript types match backend API."""
 
+    TS_FILE = Path(__file__).resolve().parents[2] / "web" / "src" / "lib" / "api" / "deployments.ts"
+
     def test_frontend_deployment_has_health_fields(self):
         """Verify the deployment TS type includes health fields."""
         # This is a structural check - verify the fields exist in the TS file
-        import re
-        ts_file = open(
-            "C:/Opencode/repo2web/apps/web/src/lib/api/deployments.ts"
-        ).read()
+        ts_file = self.TS_FILE.read_text()
         assert "health_status" in ts_file
         assert "health_response_time_ms" in ts_file
         assert "last_health_check_at" in ts_file
 
     def test_frontend_has_resource_metrics_interface(self):
         """Verify ResourceMetrics interface exists in TS file."""
-        ts_file = open(
-            "C:/Opencode/repo2web/apps/web/src/lib/api/deployments.ts"
-        ).read()
+        ts_file = self.TS_FILE.read_text()
         assert "interface ResourceMetrics" in ts_file
         assert "cpu_usage_percent" in ts_file
         assert "memory_percent" in ts_file
