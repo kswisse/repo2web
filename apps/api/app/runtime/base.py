@@ -36,7 +36,7 @@ class ContainerConfig:
     command: list[str] = field(default_factory=list)
     name: str = ""
     env_vars: dict[str, str] = field(default_factory=dict)
-    working_dir: str = "/app"
+    working_dir: Optional[str] = None
     ports: dict[str, int] = field(default_factory=dict)  # container_port -> host_port
     labels: dict[str, str] = field(default_factory=dict)
     volumes: dict[str, dict] = field(default_factory=dict)
@@ -69,7 +69,6 @@ class ContainerConfig:
             "command": self.command,
             "name": self.name,
             "environment": self.env_vars,
-            "working_dir": self.working_dir,
             "detach": self.detach,
             "user": self.user,
             "nano_cpus": int(self.cpu_limit * 1_000_000_000),
@@ -85,6 +84,9 @@ class ContainerConfig:
             "tmpfs": self.tmpfs,
             "labels": self.labels,
         }
+
+        if self.working_dir is not None:
+            result["working_dir"] = self.working_dir
         
         if self.storage_opt:
             result["storage_opt"] = self.storage_opt
@@ -94,6 +96,9 @@ class ContainerConfig:
                 f"{container_port}/tcp": host_port
                 for container_port, host_port in self.ports.items()
             }
+        
+        if self.volumes:
+            result["volumes"] = self.volumes
         
         return result
 
@@ -245,5 +250,37 @@ class ContainerRuntime(ABC):
             
         Returns:
             Health check result
+        """
+        ...
+    
+    @abstractmethod
+    async def commit_container(
+        self,
+        container_id: str,
+        repository: str,
+        tag: str = "latest",
+        changes: Optional[list[str]] = None,
+    ) -> str:
+        """
+        Commit a container as a Docker image.
+        
+        Args:
+            container_id: Container to commit
+            repository: Image repository name
+            tag: Image tag
+            changes: Dockerfile instructions to apply
+            
+        Returns:
+            Committed image name (repository:tag)
+        """
+        ...
+    
+    @abstractmethod
+    async def remove_image(self, image_name: str) -> None:
+        """
+        Remove a Docker image.
+        
+        Args:
+            image_name: Image name to remove
         """
         ...

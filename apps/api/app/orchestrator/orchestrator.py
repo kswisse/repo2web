@@ -161,6 +161,7 @@ class DeploymentOrchestrator:
         
         snapshot: Optional[RepositorySnapshot] = None
         container_id: Optional[str] = None
+        build_image: Optional[str] = None
         execution_plan: Optional[ExecutionPlan] = None
         file_names: list[str] = []
         
@@ -295,6 +296,7 @@ class DeploymentOrchestrator:
                 
             result.build_container_id = build_result.container_id
             result.build_completed_at = datetime.now(timezone.utc)
+            build_image = build_result.image
             self._log_stage_complete(deployment_id, "building", {
                 "image": build_result.image,
                 "duration": (result.build_completed_at - build_start).total_seconds(),
@@ -446,6 +448,9 @@ class DeploymentOrchestrator:
             
         finally:
             # Cleanup on all paths
+            # Note: build_image is NOT cleaned up here - it persists while runtime runs.
+            # The image is referenced by the runtime container and will be cleaned up
+            # when the container is destroyed.
             await self._cleanup_resources(snapshot, container_id)
             
     async def cancel(self, deployment_id: str, container_id: Optional[str] = None) -> DeploymentResult:

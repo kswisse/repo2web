@@ -1,11 +1,11 @@
 """
 Container cleanup service.
 
-Handles cleanup of containers and resources.
+Handles cleanup of containers, images, and resources.
 """
 
 import logging
-from typing import List
+from typing import List, Optional
 
 from .base import ContainerRuntime, ContainerStatus
 
@@ -46,6 +46,47 @@ class ContainerCleanup:
             
         except Exception as e:
             logger.warning(f"Failed to cleanup container {container_id[:12]}: {e}")
+    
+    async def cleanup_image(self, image_name: str) -> None:
+        """
+        Cleanup a Docker image.
+        
+        Args:
+            image_name: Image name to cleanup
+        """
+        try:
+            await self.runtime.remove_image(image_name)
+            logger.info(f"Cleaned up image {image_name}")
+        except Exception as e:
+            logger.warning(f"Failed to cleanup image {image_name}: {e}")
+    
+    async def cleanup_build_resources(
+        self,
+        container_id: Optional[str] = None,
+        image_name: Optional[str] = None,
+        volume_name: Optional[str] = None,
+    ) -> None:
+        """
+        Cleanup all build resources (container, image, volume).
+        
+        Used after runtime container is created to clean up build artifacts.
+        
+        Args:
+            container_id: Build container ID to cleanup
+            image_name: Build image name to cleanup
+            volume_name: Build volume name to cleanup
+        """
+        if container_id:
+            await self.cleanup_container(container_id)
+        
+        if image_name:
+            await self.cleanup_image(image_name)
+        
+        if volume_name:
+            try:
+                await self.runtime.remove_volume(volume_name)
+            except Exception as e:
+                logger.warning(f"Failed to cleanup volume {volume_name}: {e}")
     
     async def cleanup_all(self) -> int:
         """

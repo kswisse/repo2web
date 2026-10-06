@@ -132,20 +132,43 @@ class BuildExecutor:
         """
         Execute a build in a container.
         
+        Build context transfer mechanism:
+        1. Create a temporary Docker volume for this build
+        2. Copy the repository snapshot into the volume via a trusted copier container
+        3. Mount the volume into the untrusted build container at /workspace
+        4. Remove the volume after build (success or failure)
+        
+        Security properties:
+        - The untrusted build container never sees the host filesystem
+        - Only the repository snapshot crosses the container boundary
+        - No Docker socket exposure
+        - Volume is cleaned up on all exit paths
+        
         Args:
             deployment_id: Deployment ID for audit logging
             repo_url: Repository URL
             commit_sha: Commit SHA
             execution_plan: Execution plan from analyzer
-            build_dir: Path to cloned repository
+            build_dir: Path to cloned repository (host path)
             
         Returns:
             Build result
         """
         start_time = datetime.now(timezone.utc)
         container_id = None
+        slug = deployment_id[:16].lower().strip("-_.")
+        volume_name = f"repo2web-build-{slug}"
         
         try:
+            # 0. Create Docker volume and copy repository snapshot into it
+            #    This is the secure build-context transfer mechanism.
+            await self.runtime.create_volume(volume_name)
+            await self.runtime.copy_to_volume(
+                volume_name=volume_name,
+                host_path=build_dir,
+                container_path="/workspace",
+            )
+            
             # 1. Validate repository URL
             is_valid, reason = validate_url(repo_url)
             if not is_valid:
@@ -192,7 +215,7 @@ class BuildExecutor:
             # 5. Generate build commands from execution plan
             build_commands = self._generate_build_commands(execution_plan, build_dir)
             
-            # 6. Create container configuration
+            # 6. Create container configuration with volume mount
             container_config = ContainerConfig(
                 image=self._select_base_image(execution_plan),
                 command=["/bin/sh", "-c", " && ".join(build_commands)],
@@ -204,8 +227,18 @@ class BuildExecutor:
                     "PYTHONUNBUFFERED": "1",
                     "PIP_NO_CACHE_DIR": "1",
                     "NPM_CONFIG_CACHE": "/tmp/.npm",
+                    # Ensure pip/npm can install as non-root user (uid 1000)
+                    # by using /tmp as HOME (backed by tmpfs mount)
+                    "HOME": "/tmp",
+                    # Install packages into the volume (/workspace) so that
+                    # build_runtime_image_from_build() captures them. Previously
+                    # PYTHONUSERBASE=/tmp/pip put packages on tmpfs which was
+                    # lost when extracting artifacts from the volume.
+                    "PYTHONUSERBASE": "/workspace/.pip",
                 },
                 working_dir="/workspace",
+                # Mount the Docker volume containing the repository snapshot
+                volumes={volume_name: {"bind": "/workspace", "mode": "rw"}},
                 cpu_limit=sandbox_config.cpu_limit,
                 memory_limit=sandbox_config.memory_limit,
                 memory_swap_limit=sandbox_config.memory_swap_limit,
@@ -223,6 +256,7 @@ class BuildExecutor:
                 labels={
                     "deployment_id": deployment_id,
                     "type": "build",
+                    "build_volume": volume_name,
                 },
             )
             
@@ -251,6 +285,7 @@ class BuildExecutor:
                     "repo_url": repo_url,
                     "commit_sha": commit_sha,
                     "image": container_config.image,
+                    "volume": volume_name,
                 },
             ))
             
@@ -290,7 +325,55 @@ class BuildExecutor:
             # 13. Determine success
             success = exit_code == 0 and not security_violations
             
-            # 14. Log build completion
+            # 14. Create runtime image from build artifacts (if successful)
+            image_name = None
+            if success:
+                try:
+                    # Generate a deterministic image name from the deployment.
+                    # Sanitize the slug: Docker image names must match
+                    # [a-z0-9]+([._-][a-z0-9]+)* — no leading/trailing
+                    # hyphens or other separators.
+                    slug = deployment_id[:16].lower()
+                    slug = slug.strip("-_.")
+                    image_repo = f"repo2web-{slug}"
+                    image_tag = "latest"
+                    
+                    # Prepare image parameters from execution plan
+                    run_command = execution_plan.get("run_command", "python app.py")
+                    port = execution_plan.get("port", 8000)
+                    base_image = self._select_base_image(execution_plan)
+                    
+                    # Build a proper runtime image by extracting build artifacts
+                    # from the Docker volume. This uses `docker cp` + `docker build`
+                    # instead of `docker commit`, because:
+                    # - Docker volumes are NOT captured by `docker commit`
+                    # - User 1000:1000 cannot copy files to a new path in the
+                    #   container's writable layer (root fs is 755 root-owned)
+                    # - The Docker daemon (root) extracts files from the volume
+                    #   and builds a new image with a proper Dockerfile.
+                    image_name = await self.runtime.build_runtime_image_from_build(
+                        container_id=container_id,
+                        repository=image_repo,
+                        tag=image_tag,
+                        base_image=base_image,
+                        source_path="/workspace",
+                        workdir="/workspace",
+                        run_command=run_command,
+                        port=port,
+                    )
+                    
+                    logger.info(
+                        f"Created runtime image {image_name} from build container"
+                    )
+                    
+                except Exception as e:
+                    logger.warning(f"Failed to create runtime image: {e}")
+                    # Build succeeded but image creation failed
+                    # This is not a build failure, but runtime won't have an image
+                    success = False
+                    output += f"\n[Repo2Web] Failed to create runtime image: {e}"
+            
+            # 15. Log build completion
             event_type = SecurityEventType.BUILD_COMPLETED if success else SecurityEventType.BUILD_FAILED
             audit_logger.log(SecurityEvent(
                 event_type=event_type,
@@ -301,15 +384,18 @@ class BuildExecutor:
                     "exit_code": exit_code,
                     "duration_seconds": (datetime.now(timezone.utc) - start_time).total_seconds(),
                     "security_violations": security_violations,
+                    "volume": volume_name,
+                    "image": image_name,
                 },
             ))
             
-            # 15. Calculate duration
+            # 16. Calculate duration
             duration = (datetime.now(timezone.utc) - start_time).total_seconds()
             
             return BuildResult(
                 success=success,
                 container_id=container_id,
+                image=image_name,
                 output=output,
                 error=None if success else f"Build failed with exit code {exit_code}",
                 duration_seconds=duration,
@@ -337,12 +423,18 @@ class BuildExecutor:
             )
             
         finally:
-            # 16. Always cleanup build container
+            # 17. Always cleanup build container (image persists after commit)
             if container_id:
                 try:
                     await self.cleanup.cleanup_container(container_id)
                 except Exception as e:
                     logger.warning(f"Failed to cleanup build container: {e}")
+            
+            # 18. Always cleanup build volume
+            try:
+                await self.runtime.remove_volume(volume_name)
+            except Exception as e:
+                logger.warning(f"Failed to cleanup build volume {volume_name}: {e}")
     
     def _validate_network_policy(self, policy: NetworkPolicy) -> list[str]:
         """Validate network policy for compliance."""
@@ -371,12 +463,21 @@ class BuildExecutor:
         - Rejects commands with shell metacharacters
         - Enforces command length limits
         - Validates command prefixes against allowlist
+        
+        Note: The repository source is already available at /workspace
+        via the Docker volume mount (see execute_build). The build_dir
+        parameter is retained for interface compatibility but is not used
+        for file transfer.
         """
         commands = []
         
         # Add setup commands (these are safe, hardcoded)
         commands.append("mkdir -p /workspace")
-        commands.append(f"cp -r {build_dir}/* /workspace/")
+        
+        # NOTE: Source files are now delivered via Docker volume mount.
+        # The old mechanism (cp -r {build_dir}/* /workspace/) failed because
+        # the Linux build container could not access the Windows host path.
+        # Volume transfer: Git snapshot → Docker volume → /workspace
         
         # Validate and add install steps
         for step in execution_plan.get("install_steps", []):
@@ -391,6 +492,14 @@ class BuildExecutor:
             if cmd:
                 validated_cmd = self._validate_build_command(cmd)
                 commands.append(validated_cmd)
+        
+        # NOTE: We do NOT copy from /workspace into the writable layer here.
+        # User 1000:1000 cannot create directories at / (root is 755 root-owned),
+        # so any copy-to-new-path approach fails with "Permission denied".
+        # Instead, build artifacts are extracted from the volume by the Docker
+        # daemon (which runs as root) AFTER the build completes, using
+        # DockerContainerRuntime.build_runtime_image_from_build().
+        # See executor.py execute_build() step 14.
         
         return commands
     
@@ -543,16 +652,20 @@ class RuntimeExecutor:
             self._validate_runtime_command(run_command)
             
             # 5. Create container configuration
+            # NOTE: working_dir is intentionally NOT set here.
+            # The committed image already has WORKDIR set to the correct
+            # directory (e.g., /workspace). Setting working_dir would override
+            # the image's WORKDIR, causing the command to fail if the app
+            # files are not at the overridden path.
             container_config = ContainerConfig(
                 image=build_image,
                 command=["/bin/sh", "-c", run_command],
-                name=f"runtime-{deployment_id[:8]}",
+                name=f"runtime-{deployment_id[:16].lower().strip('-_.')}",
                 env_vars={
                     "RUNTIME_ID": deployment_id,
                     "PORT": str(port),
                     "NODE_ENV": "production",
                 },
-                working_dir="/app",
                 ports={port: None},  # Dynamic port mapping
                 cpu_limit=sandbox_config.cpu_limit,
                 memory_limit=sandbox_config.memory_limit,

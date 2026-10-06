@@ -95,12 +95,23 @@ def validate_docker_config(container_config: dict) -> list[str]:
 
     # Check forbidden mounts
     volumes = container_config.get("volumes", [])
-    for volume in volumes:
-        if isinstance(volume, str):
-            source = volume.split(":")[0]
+    if isinstance(volumes, dict):
+        # Docker SDK format: {"volume_name_or_host_path": {"bind": "/path", "mode": "rw"}}
+        # The KEY is the source (host path or volume name).
+        # We check the source for forbidden host paths.
+        for vol_source, vol_spec in volumes.items():
+            source = str(vol_source)
             for forbidden in config.FORBIDDEN_MOUNTS:
                 if source == forbidden or source.startswith(forbidden + "/"):
                     violations.append(f"Forbidden mount: {source}")
+    elif isinstance(volumes, list):
+        # Legacy string format: ["source:target:mode"]
+        for volume in volumes:
+            if isinstance(volume, str):
+                source = volume.split(":")[0]
+                for forbidden in config.FORBIDDEN_MOUNTS:
+                    if source == forbidden or source.startswith(forbidden + "/"):
+                        violations.append(f"Forbidden mount: {source}")
 
     # Check security options
     security_opt = container_config.get("security_opt", [])

@@ -23,7 +23,7 @@ from .validation import (
     sanitize_shell_argument,
     SHELL_METACHARACTERS,
 )
-from .ssrf import validate_url_ssrf, validate_url_ssrf_async, is_ip_blocked, resolve_hostname, BLOCKED_IP_RANGES
+from .ssrf import validate_url_ssrf, validate_url_ssrf_async, is_ip_blocked, resolve_hostname, BLOCKED_IP_RANGES, is_trusted_deployment_endpoint
 from .secrets import (
     is_secret_env_var,
     validate_container_env,
@@ -85,6 +85,7 @@ __all__ = [
     "is_ip_blocked",
     "resolve_hostname",
     "BLOCKED_IP_RANGES",
+    "is_trusted_deployment_endpoint",
     # Secrets
     "is_secret_env_var",
     "validate_container_env",
