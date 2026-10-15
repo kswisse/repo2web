@@ -2,6 +2,68 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --ink: #0d343f;
+  --ember: #ff6724;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+::selection {
+  background: var(--ember);
+  color: #fff;
+}
+
+/* Scroll reveal (IntersectionObserver adds .visible) */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Live-status pulse dot */
+@keyframes pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 103, 36, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 103, 36, 0);
+  }
+}
+.pulse-dot {
+  animation: pulse-dot 2.6s infinite;
+}
+
+/* Marketing buttons */
+.btn-lift {
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+.btn-lift:hover {
+  transform: translateY(-2px);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
 }

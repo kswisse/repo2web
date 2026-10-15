@@ -1,35 +1,38 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
 import { Header } from '@/components/Header';
-import { DeploymentForm } from '@/components/DeploymentForm';
+import { Hero } from '@/components/marketing/Hero';
+import { HowItWorks } from '@/components/marketing/HowItWorks';
+import { TrustSignals } from '@/components/marketing/TrustSignals';
+import { Faq } from '@/components/marketing/Faq';
+import { SiteFooter } from '@/components/marketing/SiteFooter';
+import { Reveal } from '@/components/marketing/Reveal';
+import { DeployPanel } from '@/components/DeployPanel';
 
 export default function HomePage() {
-  const router = useRouter();
-
-  const handleDeploymentCreated = (deploymentId: string) => {
-    router.push(`/deployments/${deploymentId}`);
-  };
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <div id="top" className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 max-w-4xl mx-auto w-full px-6 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Turn GitHub repositories into running apps.
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Paste a GitHub URL, and we&apos;ll analyze, build, and deploy it as a live web application.
-          </p>
-        </div>
-
-        <DeploymentForm onDeploymentCreated={handleDeploymentCreated} />
-
-        <div className="mt-12 text-center text-sm text-gray-500">
-          <p>Supported: React, Vue, Angular, Next.js, Node.js, Python (Flask, Django, FastAPI)</p>
-        </div>
+      <main className="flex-1">
+        <Hero />
+        <section id="deploy" className="bg-ink border-t border-white/10 scroll-mt-[72px]" aria-labelledby="deploy-heading">
+          <div className="max-w-6xl mx-auto px-6 pb-16 md:pb-20">
+            <Reveal>
+              <div className="max-w-4xl mx-auto">
+                <h2 id="deploy-heading" className="sr-only">
+                  Deploy a repository
+                </h2>
+                <DeployPanel />
+                <p className="mt-6 text-center text-sm text-white/40">
+                  Supported: React, Vue, Angular, Next.js, Node.js, Python (Flask, Django, FastAPI)
+                </p>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+        <HowItWorks />
+        <TrustSignals />
+        <Faq />
       </main>
+      <SiteFooter />
     </div>
   );
 }
