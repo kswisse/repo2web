@@ -38,3 +38,6 @@ coverage.xml
 # Internal
 .superpowers/
 .venv-verify/
+
+# Machine-generated validation run output (root level; not test fixtures)
+/validation_results*.json

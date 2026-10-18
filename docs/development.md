@@ -53,10 +53,10 @@ cp apps/api/.env.example apps/api/.env
 ```
 
 Key variables:
-- `DATABASE_URL` — PostgreSQL connection string
-- `REDIS_URL` — Redis connection string
-- `SECRET_KEY` — JWT signing key
-- `DEBUG` — Enable debug mode
+- `DATABASE_URL` - PostgreSQL connection string
+- `REDIS_URL` - Redis connection string
+- `SECRET_KEY` - JWT signing key
+- `DEBUG` - Enable debug mode
 
 ## Running Tests
 
@@ -64,6 +64,18 @@ Key variables:
 cd apps/api
 pytest tests/ -v
 ```
+
+### Golden file: `tests/real_world/analysis_results.json`
+
+This file is a committed golden record, not scratch output. The real-world
+suite (`tests/real_world/test_real_world.py`) appends one entry per corpus
+repository to it on every run (`_save_shared_result`), and `test_corpus_summary`
+reads it back to print the corpus success rate and accuracy metrics quoted in
+the validation reports. Regenerate it only when the corpus or the analyzer
+changes: delete the file, re-run `pytest tests/real_world`, and commit the
+regenerated record with the change that caused it. Never hand-edit it. Root-level
+`validation_results*.json` files are different - they are throwaway run output
+and are gitignored.
 
 ## Project Structure
 
