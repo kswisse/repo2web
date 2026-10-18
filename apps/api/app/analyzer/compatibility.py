@@ -49,6 +49,7 @@ def evaluate_compatibility(
     key_files: dict[str, Optional[str]],
     file_names: list[str],
     evidence: list[DetectedSignal],
+    is_framework_repository: bool = False,
 ) -> CompatibilityResult:
     """Evaluate if a repository is compatible with the deployment system.
 
@@ -60,6 +61,7 @@ def evaluate_compatibility(
         key_files: Dictionary of key file contents.
         file_names: List of file names in the repository.
         evidence: List of detected signals.
+        is_framework_repository: True if repository IS the framework itself.
 
     Returns:
         CompatibilityResult with status, confidence, blockers, and warnings.
@@ -67,6 +69,19 @@ def evaluate_compatibility(
     blockers = []
     warnings = []
     confidence_factors = []
+
+    # 0. Check if this is a framework repository (highest priority)
+    if is_framework_repository:
+        blockers.append(
+            "Repository IS the framework itself (not an application). "
+            "Framework source code cannot be deployed as an application."
+        )
+        return CompatibilityResult(
+            status="UNSUPPORTED",
+            confidence="HIGH",
+            blockers=blockers,
+            warnings=warnings,
+        )
 
     # 1. Check language support
     if not language:

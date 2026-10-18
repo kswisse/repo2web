@@ -244,6 +244,13 @@ def _detect_python_entrypoint(
                 file_content = key_files.get(entrypoint["file"])
                 if file_content and _has_http_patterns(file_content):
                     module = entrypoint["file"].replace(".py", "")
+                    # Use flask run for Flask apps to ensure 0.0.0.0 binding
+                    if framework == "flask":
+                        return EntrypointDetection(
+                            command="flask run --host 0.0.0.0 --port 5000",
+                            confidence="MEDIUM",
+                            evidence=[f"Found Flask entry file '{entrypoint['file']}' with HTTP patterns"],
+                        )
                     return EntrypointDetection(
                         command=f"python {entrypoint['file']}",
                         confidence="LOW",
@@ -259,9 +266,9 @@ def _detect_python_entrypoint(
         )
     elif framework == "flask":
         return EntrypointDetection(
-            command="python app.py",
+            command="flask run --host 0.0.0.0 --port 5000",
             confidence="MEDIUM",
-            evidence=["Flask framework detected, using default command"],
+            evidence=["Flask framework detected, using flask run with 0.0.0.0 binding"],
         )
     elif framework == "django":
         return EntrypointDetection(

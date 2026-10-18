@@ -596,3 +596,192 @@ class TestRuntimeExecution:
         assert health_checker is not None
         assert health_checker.runtime is not None
         assert health_checker.runtime.is_available
+
+
+class TestDockerContainerIP:
+    """Test Docker container IP retrieval and trusted endpoint validation."""
+
+    async def test_get_container_ip(self, docker_runtime):
+        """Get container IP from Docker API for a running container."""
+        name = _unique_name("test-ip")
+        config = ContainerConfig(
+            image="python:3.11-slim",
+            command=["sleep", "30"],
+            name=name,
+            user="1000:1000",
+            network_mode="bridge",
+        )
+
+        container_id = await docker_runtime.create_container(config)
+        await docker_runtime.start_container(container_id)
+
+        try:
+            ip = await docker_runtime.get_container_ip(container_id)
+            assert ip is not None, "Container must have an IP address"
+            assert ip != "", "Container IP must not be empty"
+            # Validate it's a valid IP
+            import ipaddress
+            ipaddress.ip_address(ip)
+        finally:
+            await docker_runtime.remove_container(container_id, force=True)
+
+    async def test_get_container_labels(self, docker_runtime):
+        """Get container labels from Docker API."""
+        name = _unique_name("test-labels")
+        config = ContainerConfig(
+            image="python:3.11-slim",
+            command=["echo", "hello"],
+            name=name,
+            user="1000:1000",
+            network_mode="bridge",
+            labels={
+                "deployment_id": "test-deployment-123",
+                "type": "runtime",
+            },
+        )
+
+        container_id = await docker_runtime.create_container(config)
+        await docker_runtime.start_container(container_id)
+        await docker_runtime.wait_for_container(container_id, timeout=10)
+
+        try:
+            labels = await docker_runtime.get_container_labels(container_id)
+            assert labels.get("deployment_id") == "test-deployment-123"
+            assert labels.get("type") == "runtime"
+        finally:
+            await docker_runtime.remove_container(container_id, force=True)
+
+    async def test_get_container_ip_nonexistent(self, docker_runtime):
+        """Getting IP for nonexistent container must raise error."""
+        with pytest.raises(Exception):
+            await docker_runtime.get_container_ip("nonexistent-container-id")
+
+    async def test_health_check_with_trusted_labels(self, docker_runtime, health_checker):
+        """Health check must work for containers with deployment_id labels.
+
+        This tests the trusted endpoint validation: a container with a valid
+        deployment_id label should be health-checkable even though its IP
+        is in a private Docker bridge range.
+
+        Uses port mapping so the health check works on all platforms
+        (including Docker Desktop for Windows where container IPs are
+        not reachable from the host).
+        """
+        import asyncio
+
+        # Start a simple Python HTTP server in a container with port mapping
+        name = _unique_name("test-health")
+        config = ContainerConfig(
+            image="python:3.11-slim",
+            command=["python", "-m", "http.server", "8080"],
+            name=name,
+            user="1000:1000",
+            network_mode="bridge",
+            labels={
+                "deployment_id": "test-health-deployment",
+                "type": "runtime",
+            },
+            ports={"8080": None},  # Dynamic port mapping for cross-platform access
+            working_dir="/tmp",
+        )
+
+        container_id = await docker_runtime.create_container(config)
+        await docker_runtime.start_container(container_id)
+
+        # Wait for server to start
+        await asyncio.sleep(3)
+
+        try:
+            result = await docker_runtime.health_check(
+                container_id=container_id,
+                port=8080,
+                path="/",
+                timeout=5,
+            )
+            assert result["status"] == "healthy", f"Health check failed: {result}"
+            assert result["status_code"] == 200
+        finally:
+            await docker_runtime.remove_container(container_id, force=True)
+
+    async def test_health_check_rejects_untrusted_container(self, docker_runtime, docker_client):
+        """Health check must reject containers without deployment_id labels.
+
+        Security property: Only Repo2Web-created containers should be
+        health-checkable. Containers without deployment_id labels must
+        be rejected with SSRF protection.
+
+        Uses port mapping so the health check reaches the container on
+        all platforms, but the rejection is based on missing labels.
+        """
+        if not docker_client:
+            pytest.skip("docker-py client not available")
+
+        import asyncio
+
+        # Start a container WITHOUT deployment_id label
+        name = _unique_name("test-untrusted")
+        config = ContainerConfig(
+            image="python:3.11-slim",
+            command=["python", "-m", "http.server", "8080"],
+            name=name,
+            user="1000:1000",
+            network_mode="bridge",
+            # NO deployment_id label
+            ports={"8080": None},  # Port mapping for cross-platform access
+            working_dir="/tmp",
+        )
+
+        container_id = await docker_runtime.create_container(config)
+        await docker_runtime.start_container(container_id)
+
+        await asyncio.sleep(3)
+
+        try:
+            result = await docker_runtime.health_check(
+                container_id=container_id,
+                port=8080,
+                path="/",
+                timeout=5,
+            )
+            # Must NOT be healthy — untrusted container should be rejected
+            assert result["status"] == "unhealthy", (
+                f"Untrusted container must be rejected, got: {result}"
+            )
+            # Should mention the container is not a recognized deployment
+            error = result.get("error", "")
+            assert "blocked" in error.lower() or "not a recognized" in error.lower() or "range" in error.lower(), (
+                f"Error should mention SSRF rejection, got: {error}"
+            )
+        finally:
+            await docker_runtime.remove_container(container_id, force=True)
+
+    async def test_health_checker_validates_deployment_label(self, health_checker, docker_runtime):
+        """HealthChecker must reject containers without deployment_id labels."""
+        name = _unique_name("test-hc-untrusted")
+        config = ContainerConfig(
+            image="python:3.11-slim",
+            command=["sleep", "30"],
+            name=name,
+            user="1000:1000",
+            network_mode="bridge",
+            # NO deployment_id label
+        )
+
+        container_id = await docker_runtime.create_container(config)
+        await docker_runtime.start_container(container_id)
+
+        try:
+            result = await health_checker.check_health(
+                container_id=container_id,
+                port=8080,
+                path="/",
+                timeout=3,
+                max_retries=1,
+            )
+            # Must NOT be healthy — untrusted container should be rejected
+            assert result.status == "unhealthy", (
+                f"Untrusted container must be rejected, got status: {result.status}"
+            )
+            assert result.error is not None
+        finally:
+            await docker_runtime.remove_container(container_id, force=True)

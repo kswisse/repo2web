@@ -19,6 +19,10 @@ from app.analyzer.types import (
 from app.analyzer.file_inventory import scan_repository
 from app.analyzer.manifest_parser import detect_package_manager, parse_manifests
 from app.analyzer.framework_detector import detect_framework
+from app.analyzer.framework_repository_detector import (
+    detect_framework_repository,
+    get_framework_repository_signal,
+)
 from app.analyzer.entrypoint_detector import detect_entrypoint
 from app.analyzer.port_detector import detect_port
 from app.analyzer.env_detector import detect_environment_variables
@@ -76,6 +80,16 @@ def analyze_repository(
     file_names = [Path(f).name for f in inventory.files]
     framework = detect_framework(all_dependencies, file_names, language)
 
+    # Step 4b: Detect if this is a framework repository (not an application)
+    framework_repository = detect_framework_repository(
+        owner=owner,
+        repo=repo,
+        key_files=inventory.key_files,
+        file_names=file_names,
+        all_dependencies=all_dependencies,
+        framework_name=framework.name if framework else None,
+    )
+
     # Step 5: Detect entrypoint
     entrypoint = detect_entrypoint(
         inventory.key_files,
@@ -102,6 +116,7 @@ def analyze_repository(
         environment,
         services,
         package_manager,
+        framework_repository,
     )
 
     # Step 10: Evaluate compatibility
@@ -113,6 +128,7 @@ def analyze_repository(
         key_files=inventory.key_files,
         file_names=file_names,
         evidence=evidence,
+        is_framework_repository=framework_repository.is_framework_repository,
     )
 
     # Step 11: Build repository info
@@ -262,6 +278,7 @@ def _collect_evidence(
     environment: list[EnvironmentVariable],
     services: list[ServiceDependency],
     package_manager: str,
+    framework_repository=None,
 ) -> list[DetectedSignal]:
     """Collect all evidence from detection results.
 
@@ -273,6 +290,7 @@ def _collect_evidence(
         environment: Detected environment variables.
         services: Detected service dependencies.
         package_manager: Detected package manager.
+        framework_repository: Framework repository detection result.
 
     Returns:
         List of DetectedSignal objects.
@@ -296,6 +314,12 @@ def _collect_evidence(
             confidence=framework.confidence,
             evidence=framework.evidence,
         ))
+
+    # Framework repository evidence
+    if framework_repository:
+        fr_signal = get_framework_repository_signal(framework_repository)
+        if fr_signal:
+            evidence.append(fr_signal)
 
     # Entrypoint evidence
     if entrypoint:

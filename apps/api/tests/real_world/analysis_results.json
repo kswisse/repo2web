@@ -3399,5 +3399,2985 @@
     "failure_stage": "",
     "failure_category": "",
     "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/tiangolo/full-stack-fastapi-template",
+    "commit_sha": "cb740b656d7a0a6c5e12c7bf8e50343ec94ee9c7",
+    "framework_detected": "react",
+    "language_detected": "node",
+    "package_manager_detected": "npm",
+    "port_detected": 3333,
+    "entrypoint_detected": "email dev --port 3333",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 3.2461650371551514,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.05345582962036133,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": false,
+    "port_correct": false,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/tiangolo/fastapi",
+    "commit_sha": "50113da16fec53b66b80d75e80a89296de4fa5a5",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 3000,
+    "entrypoint_detected": "python app.py",
+    "compatibility_status": "SUPPORTED_WITH_WARNINGS",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 8.074338912963867,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.43407773971557617,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/pallets/flask",
+    "commit_sha": "d73fa1cdcbd8b1465c151db8924ba58b1dd14e35",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 3000,
+    "entrypoint_detected": "flask run --host 0.0.0.0 --port 5000",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 2.0586585998535156,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.04081606864929199,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/mfieldhouse/flask-minimal",
+    "commit_sha": "58944d54c8d70bef15c8dd4fbb39287b40f8d82e",
+    "framework_detected": "flask",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 5000,
+    "entrypoint_detected": "python app.py",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.4620344638824463,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.012386798858642578,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/django/django",
+    "commit_sha": "2b30f6255b5ef84afbd827993643d52ef2c0963a",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "npm",
+    "port_detected": 3000,
+    "entrypoint_detected": "python manage.py runserver 0.0.0.0:8000",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 12.266982316970825,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 1.5424480438232422,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/streamlit/llm-examples",
+    "commit_sha": "7cf260745675e41f92e7436d3777aafdab9dad9f",
+    "framework_detected": "streamlit",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 8501,
+    "entrypoint_detected": "streamlit run Chatbot.py",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.670522928237915,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.012912511825561523,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/gradio-app/gradio",
+    "commit_sha": "f153368503508b308b059c0986d4a0595312db70",
+    "framework_detected": "fastapi",
+    "language_detected": "python",
+    "package_manager_detected": "pnpm",
+    "port_detected": 9876,
+    "entrypoint_detected": "uvicorn main:app --host 0.0.0.0 --port 8000",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 36.72779703140259,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.553107738494873,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/expressjs/express",
+    "commit_sha": "53d4a0d606c0388f764f192b306ce0e90200e7e8",
+    "framework_detected": "",
+    "language_detected": "node",
+    "package_manager_detected": "npm",
+    "port_detected": 3000,
+    "entrypoint_detected": "node index.js",
+    "compatibility_status": "SUPPORTED_WITH_WARNINGS",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.9261317253112793,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.0461888313293457,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/coderooz/Hello-World-Web-Server",
+    "commit_sha": "f1ec8594fc43890712c7b25763d2d68e77065ba0",
+    "framework_detected": "express",
+    "language_detected": "node",
+    "package_manager_detected": "npm",
+    "port_detected": 3000,
+    "entrypoint_detected": "node index.js",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.6386725902557373,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.011358022689819336,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/vercel/next.js",
+    "commit_sha": "",
+    "framework_detected": "",
+    "language_detected": "",
+    "package_manager_detected": "",
+    "port_detected": 0,
+    "entrypoint_detected": "",
+    "compatibility_status": "",
+    "compatibility_confidence": "",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": false,
+        "duration_seconds": 12.371787786483765,
+        "error": "Clone failed: Cloning into 'C:\\Users\\flash\\AppData\\Local\\Temp\\repo2web_test_kn5qz5g5\\repo_1789139188_4454'...\nUpdating files:   2% (957/32188)\nUpdating files:   3% (966/32188)\nUpdating files:   4% (1288/32188)\nUpdating files:   5% (1610/32188)\nfatal: cannot create directory at 'crates/next-custom-transforms/tests/fixture/strip-page-exports/getStaticProps/support-export-named-as-default-with-other-specifiers/support-export-named-as-default-with-a-class': Filename too long\nwarning: Clone succeeded, but checkout failed.\nYou can inspect what was checked out with 'git status'\nand retry with 'git restore --source=HEAD :/'",
+        "details": {}
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": null,
+    "port_correct": null,
+    "package_manager_correct": null,
+    "final_status": "ACQUISITION_FAILED",
+    "failure_stage": "clone",
+    "failure_category": "clone_failure",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/vitejs/vite",
+    "commit_sha": "99bd9d1d46153fa939f4a304cc0177db42e28776",
+    "framework_detected": "vue",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "vite --config ./vite.config-iife.js",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 8.528173208236694,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.7299554347991943,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/vuejs/core",
+    "commit_sha": "54097087a0918b98f16c84599b1a6d654e952ca7",
+    "framework_detected": "vue",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "vite",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 2.715806245803833,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.13106226921081543,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/sveltejs/kit",
+    "commit_sha": "4da6320db8d70b73b93e142e4bb6ba9173be3b97",
+    "framework_detected": "",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "vite dev",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 6.274010896682739,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 1.1851136684417725,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/LekoArts/gatsby-themes",
+    "commit_sha": "0ee600732beb88a49135760df9ed6f4d419fde2e",
+    "framework_detected": "react",
+    "language_detected": "node",
+    "package_manager_detected": "yarn",
+    "port_detected": 3000,
+    "entrypoint_detected": "gatsby develop",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 9.36788034439087,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.1657242774963379,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": true,
+    "port_correct": null,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/pypa/sampleproject",
+    "commit_sha": "621e4974ca25ce531773def586ba3ed8e736b3fc",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 3000,
+    "entrypoint_detected": "python app.py",
+    "compatibility_status": "SUPPORTED_WITH_WARNINGS",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.5472438335418701,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.013471126556396484,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": true,
+    "port_correct": null,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/pnpm/pnpm",
+    "commit_sha": "e29016f20b8314eb1351344d5cee754b34948cd1",
+    "framework_detected": "react",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "tsgo --watch",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 12.681549787521362,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 1.8608477115631104,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": true,
+    "port_correct": null,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/python/cpython",
+    "commit_sha": "b6e8088624c078cc0504199cab4e6b328c01bbb9",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "unknown",
+    "port_detected": 3000,
+    "entrypoint_detected": "python app.py",
+    "compatibility_status": "SUPPORTED_WITH_WARNINGS",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 20.57960081100464,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.9517910480499268,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": true,
+    "port_correct": null,
+    "package_manager_correct": null,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/tiangolo/full-stack-fastapi-template",
+    "commit_sha": "cb740b656d7a0a6c5e12c7bf8e50343ec94ee9c7",
+    "framework_detected": "react",
+    "language_detected": "node",
+    "package_manager_detected": "npm",
+    "port_detected": 3333,
+    "entrypoint_detected": "email dev --port 3333",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 2.237048864364624,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.05279135704040527,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": false,
+    "port_correct": false,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/tiangolo/fastapi",
+    "commit_sha": "50113da16fec53b66b80d75e80a89296de4fa5a5",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 3000,
+    "entrypoint_detected": "python app.py",
+    "compatibility_status": "SUPPORTED_WITH_WARNINGS",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 8.34998369216919,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.46628880500793457,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/pallets/flask",
+    "commit_sha": "d73fa1cdcbd8b1465c151db8924ba58b1dd14e35",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 3000,
+    "entrypoint_detected": "flask run --host 0.0.0.0 --port 5000",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 2.374192714691162,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.11147904396057129,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/mfieldhouse/flask-minimal",
+    "commit_sha": "58944d54c8d70bef15c8dd4fbb39287b40f8d82e",
+    "framework_detected": "flask",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 5000,
+    "entrypoint_detected": "python app.py",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.5567686557769775,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.012621164321899414,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/django/django",
+    "commit_sha": "2b30f6255b5ef84afbd827993643d52ef2c0963a",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "npm",
+    "port_detected": 3000,
+    "entrypoint_detected": "python manage.py runserver 0.0.0.0:8000",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 12.847623348236084,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 1.8279802799224854,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/streamlit/llm-examples",
+    "commit_sha": "7cf260745675e41f92e7436d3777aafdab9dad9f",
+    "framework_detected": "streamlit",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 8501,
+    "entrypoint_detected": "streamlit run Chatbot.py",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.6650395393371582,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.012688398361206055,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/gradio-app/gradio",
+    "commit_sha": "f153368503508b308b059c0986d4a0595312db70",
+    "framework_detected": "fastapi",
+    "language_detected": "python",
+    "package_manager_detected": "pnpm",
+    "port_detected": 9876,
+    "entrypoint_detected": "uvicorn main:app --host 0.0.0.0 --port 8000",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 39.233654737472534,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.5801370143890381,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/expressjs/express",
+    "commit_sha": "53d4a0d606c0388f764f192b306ce0e90200e7e8",
+    "framework_detected": "",
+    "language_detected": "node",
+    "package_manager_detected": "npm",
+    "port_detected": 3000,
+    "entrypoint_detected": "node index.js",
+    "compatibility_status": "SUPPORTED_WITH_WARNINGS",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.9419763088226318,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.046198129653930664,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/coderooz/Hello-World-Web-Server",
+    "commit_sha": "f1ec8594fc43890712c7b25763d2d68e77065ba0",
+    "framework_detected": "express",
+    "language_detected": "node",
+    "package_manager_detected": "npm",
+    "port_detected": 3000,
+    "entrypoint_detected": "node index.js",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.5205726623535156,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.009538888931274414,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/vercel/next.js",
+    "commit_sha": "",
+    "framework_detected": "",
+    "language_detected": "",
+    "package_manager_detected": "",
+    "port_detected": 0,
+    "entrypoint_detected": "",
+    "compatibility_status": "",
+    "compatibility_confidence": "",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": false,
+        "duration_seconds": 11.990997552871704,
+        "error": "Clone failed: Cloning into 'C:\\Users\\flash\\AppData\\Local\\Temp\\repo2web_test_ajiru0zy\\repo_1789139958_331'...\nUpdating files:   3% (1198/32188)\nUpdating files:   4% (1288/32188)\nUpdating files:   5% (1610/32188)\nfatal: cannot create directory at 'crates/next-custom-transforms/tests/fixture/strip-page-exports/getStaticProps/support-export-named-as-default-with-other-specifiers/support-export-named-as-default-with-a-class': Filename too long\nwarning: Clone succeeded, but checkout failed.\nYou can inspect what was checked out with 'git status'\nand retry with 'git restore --source=HEAD :/'",
+        "details": {}
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": null,
+    "port_correct": null,
+    "package_manager_correct": null,
+    "final_status": "ACQUISITION_FAILED",
+    "failure_stage": "clone",
+    "failure_category": "clone_failure",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/vitejs/vite",
+    "commit_sha": "99bd9d1d46153fa939f4a304cc0177db42e28776",
+    "framework_detected": "vue",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "vite --config ./vite.config-iife.js",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 6.908911466598511,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.6150197982788086,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/vuejs/core",
+    "commit_sha": "54097087a0918b98f16c84599b1a6d654e952ca7",
+    "framework_detected": "vue",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "vite",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 2.631441116333008,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.11515378952026367,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/sveltejs/kit",
+    "commit_sha": "4da6320db8d70b73b93e142e4bb6ba9173be3b97",
+    "framework_detected": "",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "vite dev",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 5.421740531921387,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.9899554252624512,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/LekoArts/gatsby-themes",
+    "commit_sha": "0ee600732beb88a49135760df9ed6f4d419fde2e",
+    "framework_detected": "react",
+    "language_detected": "node",
+    "package_manager_detected": "yarn",
+    "port_detected": 3000,
+    "entrypoint_detected": "gatsby develop",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 9.357789039611816,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.16944408416748047,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": true,
+    "port_correct": null,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/pypa/sampleproject",
+    "commit_sha": "621e4974ca25ce531773def586ba3ed8e736b3fc",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 3000,
+    "entrypoint_detected": "python app.py",
+    "compatibility_status": "SUPPORTED_WITH_WARNINGS",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.6529953479766846,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.011109590530395508,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": true,
+    "port_correct": null,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/pnpm/pnpm",
+    "commit_sha": "e29016f20b8314eb1351344d5cee754b34948cd1",
+    "framework_detected": "react",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "tsgo --watch",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 12.978435516357422,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 1.9481594562530518,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": true,
+    "port_correct": null,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/python/cpython",
+    "commit_sha": "2360bda599981745dbefb17162a7237372bde8be",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "unknown",
+    "port_detected": 3000,
+    "entrypoint_detected": "python app.py",
+    "compatibility_status": "SUPPORTED_WITH_WARNINGS",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 21.085659503936768,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.9182894229888916,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": true,
+    "port_correct": null,
+    "package_manager_correct": null,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/tiangolo/full-stack-fastapi-template",
+    "commit_sha": "cb740b656d7a0a6c5e12c7bf8e50343ec94ee9c7",
+    "framework_detected": "react",
+    "language_detected": "node",
+    "package_manager_detected": "npm",
+    "port_detected": 3333,
+    "entrypoint_detected": "email dev --port 3333",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 90.87703323364258,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.049199581146240234,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": false,
+    "port_correct": false,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/tiangolo/fastapi",
+    "commit_sha": "",
+    "framework_detected": "",
+    "language_detected": "",
+    "package_manager_detected": "",
+    "port_detected": 0,
+    "entrypoint_detected": "",
+    "compatibility_status": "",
+    "compatibility_confidence": "",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": false,
+        "duration_seconds": 151.1762833595276,
+        "error": "Clone timed out after 120s",
+        "details": {}
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": null,
+    "port_correct": null,
+    "package_manager_correct": null,
+    "final_status": "ACQUISITION_FAILED",
+    "failure_stage": "clone",
+    "failure_category": "unknown_clone_error",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/pallets/flask",
+    "commit_sha": "d73fa1cdcbd8b1465c151db8924ba58b1dd14e35",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 3000,
+    "entrypoint_detected": "flask run --host 0.0.0.0 --port 5000",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 3.604227304458618,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.05649900436401367,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/mfieldhouse/flask-minimal",
+    "commit_sha": "58944d54c8d70bef15c8dd4fbb39287b40f8d82e",
+    "framework_detected": "flask",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 5000,
+    "entrypoint_detected": "flask run --host 0.0.0.0 --port 5000",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 2.0435917377471924,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.011998414993286133,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/tiangolo/full-stack-fastapi-template",
+    "commit_sha": "cb740b656d7a0a6c5e12c7bf8e50343ec94ee9c7",
+    "framework_detected": "react",
+    "language_detected": "node",
+    "package_manager_detected": "npm",
+    "port_detected": 3333,
+    "entrypoint_detected": "email dev --port 3333",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 2.7000906467437744,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.06701445579528809,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": false,
+    "port_correct": false,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/tiangolo/fastapi",
+    "commit_sha": "50113da16fec53b66b80d75e80a89296de4fa5a5",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 3000,
+    "entrypoint_detected": "python app.py",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 12.806819915771484,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.49607324600219727,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/pallets/flask",
+    "commit_sha": "d73fa1cdcbd8b1465c151db8924ba58b1dd14e35",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 3000,
+    "entrypoint_detected": "flask run --host 0.0.0.0 --port 5000",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 2.675377368927002,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.0478360652923584,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/mfieldhouse/flask-minimal",
+    "commit_sha": "58944d54c8d70bef15c8dd4fbb39287b40f8d82e",
+    "framework_detected": "flask",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 5000,
+    "entrypoint_detected": "flask run --host 0.0.0.0 --port 5000",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.519604206085205,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.018922090530395508,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/django/django",
+    "commit_sha": "862ade3409ceaa8ec5305e6f5aa26ee0e553cf02",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "npm",
+    "port_detected": 3000,
+    "entrypoint_detected": "python manage.py runserver 0.0.0.0:8000",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 12.172634840011597,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 1.488142967224121,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/streamlit/llm-examples",
+    "commit_sha": "7cf260745675e41f92e7436d3777aafdab9dad9f",
+    "framework_detected": "streamlit",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 8501,
+    "entrypoint_detected": "streamlit run Chatbot.py",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.560842752456665,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.016216754913330078,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/gradio-app/gradio",
+    "commit_sha": "15ce43720d1611f44e4661c74d604eabe0d04daf",
+    "framework_detected": "fastapi",
+    "language_detected": "python",
+    "package_manager_detected": "pnpm",
+    "port_detected": 9876,
+    "entrypoint_detected": "uvicorn main:app --host 0.0.0.0 --port 8000",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 25.9835844039917,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.5582361221313477,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/expressjs/express",
+    "commit_sha": "9a34acf03cb818ff3f8bc40e44176e277a25cbb9",
+    "framework_detected": "",
+    "language_detected": "node",
+    "package_manager_detected": "npm",
+    "port_detected": 3000,
+    "entrypoint_detected": "node index.js",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.874840497970581,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.040262699127197266,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/coderooz/Hello-World-Web-Server",
+    "commit_sha": "f1ec8594fc43890712c7b25763d2d68e77065ba0",
+    "framework_detected": "express",
+    "language_detected": "node",
+    "package_manager_detected": "npm",
+    "port_detected": 3000,
+    "entrypoint_detected": "node index.js",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.506836175918579,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.010009288787841797,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/vercel/next.js",
+    "commit_sha": "",
+    "framework_detected": "",
+    "language_detected": "",
+    "package_manager_detected": "",
+    "port_detected": 0,
+    "entrypoint_detected": "",
+    "compatibility_status": "",
+    "compatibility_confidence": "",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": false,
+        "duration_seconds": 20.53990411758423,
+        "error": "Clone failed: Cloning into 'C:\\Users\\flash\\AppData\\Local\\Temp\\repo2web_test_0rtecp_q\\repo_1789829277_9381'...\nUpdating files:   3% (1064/32691)\nUpdating files:   4% (1308/32691)\nUpdating files:   5% (1635/32691)\nfatal: cannot create directory at 'crates/next-custom-transforms/tests/fixture/strip-page-exports/getStaticProps/support-export-named-as-default-with-other-specifiers/support-export-named-as-default-with-a-class': Filename too long\nwarning: Clone succeeded, but checkout failed.\nYou can inspect what was checked out with 'git status'\nand retry with 'git restore --source=HEAD :/'",
+        "details": {}
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": null,
+    "port_correct": null,
+    "package_manager_correct": null,
+    "final_status": "ACQUISITION_FAILED",
+    "failure_stage": "clone",
+    "failure_category": "clone_failure",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/vitejs/vite",
+    "commit_sha": "e9078f865cdff6bed77cd729214a7e2868f126b5",
+    "framework_detected": "vue",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "vite --config ./vite.config-iife.js",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 5.820278644561768,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.6909072399139404,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/vuejs/core",
+    "commit_sha": "4ab865a848a1da3d10fb674f857e5fff13094644",
+    "framework_detected": "vue",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "vite",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 2.6849422454833984,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.0867621898651123,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/sveltejs/kit",
+    "commit_sha": "aafcd9f9dad24f503786b0735005e2a595ddc0ee",
+    "framework_detected": "",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "vite dev",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 5.826230525970459,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.9756739139556885,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/tiangolo/full-stack-fastapi-template",
+    "commit_sha": "b1125d8839482cb7bbae603ddc6d0081bf87532e",
+    "framework_detected": "react",
+    "language_detected": "node",
+    "package_manager_detected": "npm",
+    "port_detected": 3333,
+    "entrypoint_detected": "email dev --port 3333",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.9274051189422607,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.03329133987426758,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": false,
+    "port_correct": false,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/tiangolo/fastapi",
+    "commit_sha": "b23d78f2ce4e7b3ea48a59f51ca249690d9fd02c",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 3000,
+    "entrypoint_detected": "python app.py",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 6.7927350997924805,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.4782521724700928,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/pallets/flask",
+    "commit_sha": "d086db856be187255b8ec61ef409357393020f32",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 3000,
+    "entrypoint_detected": "flask run --host 0.0.0.0 --port 5000",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.5750317573547363,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.04005765914916992,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/mfieldhouse/flask-minimal",
+    "commit_sha": "58944d54c8d70bef15c8dd4fbb39287b40f8d82e",
+    "framework_detected": "flask",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 5000,
+    "entrypoint_detected": "flask run --host 0.0.0.0 --port 5000",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.2384915351867676,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.011579275131225586,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/django/django",
+    "commit_sha": "d430084791a61b31cecec132bce3dca19194f7f2",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "npm",
+    "port_detected": 3000,
+    "entrypoint_detected": "python manage.py runserver 0.0.0.0:8000",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 10.099904537200928,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 1.624431848526001,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/streamlit/llm-examples",
+    "commit_sha": "7cf260745675e41f92e7436d3777aafdab9dad9f",
+    "framework_detected": "streamlit",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 8501,
+    "entrypoint_detected": "streamlit run Chatbot.py",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.281006097793579,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.016798973083496094,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/gradio-app/gradio",
+    "commit_sha": "de986c72372e233ffaaa7abe1b93608d4d115065",
+    "framework_detected": "fastapi",
+    "language_detected": "python",
+    "package_manager_detected": "pnpm",
+    "port_detected": 9876,
+    "entrypoint_detected": "uvicorn main:app --host 0.0.0.0 --port 8000",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 13.524412393569946,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.549999475479126,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": false,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/expressjs/express",
+    "commit_sha": "0dee2c52c7c873498f8ed7d8ee4ddd0a04d3ada8",
+    "framework_detected": "",
+    "language_detected": "node",
+    "package_manager_detected": "npm",
+    "port_detected": 3000,
+    "entrypoint_detected": "node index.js",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.5091793537139893,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.042882442474365234,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/coderooz/Hello-World-Web-Server",
+    "commit_sha": "f1ec8594fc43890712c7b25763d2d68e77065ba0",
+    "framework_detected": "express",
+    "language_detected": "node",
+    "package_manager_detected": "npm",
+    "port_detected": 3000,
+    "entrypoint_detected": "node index.js",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.1889712810516357,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.010800361633300781,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/vercel/next.js",
+    "commit_sha": "",
+    "framework_detected": "",
+    "language_detected": "",
+    "package_manager_detected": "",
+    "port_detected": 0,
+    "entrypoint_detected": "",
+    "compatibility_status": "",
+    "compatibility_confidence": "",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": false,
+        "duration_seconds": 12.638991832733154,
+        "error": "Clone failed: Cloning into 'C:\\Users\\flash\\AppData\\Local\\Temp\\repo2web_test_9a2skwfo\\repo_1792307106_1150'...\nUpdating files:   2% (1009/34271)\nUpdating files:   3% (1029/34271)\nUpdating files:   4% (1371/34271)\nfatal: cannot create directory at 'crates/next-custom-transforms/tests/fixture/strip-page-exports/getStaticProps/support-export-named-as-default-with-other-specifiers/support-export-named-as-default-with-a-class': Filename too long\nwarning: Clone succeeded, but checkout failed.\nYou can inspect what was checked out with 'git status'\nand retry with 'git restore --source=HEAD :/'",
+        "details": {}
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": null,
+    "port_correct": null,
+    "package_manager_correct": null,
+    "final_status": "ACQUISITION_FAILED",
+    "failure_stage": "clone",
+    "failure_category": "clone_failure",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/vitejs/vite",
+    "commit_sha": "a3001c5e3f4febb3099b097f4828ea567e1b253f",
+    "framework_detected": "vue",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "vite --config ./vite.config-iife.js",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 5.684277296066284,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.5677566528320312,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/vuejs/core",
+    "commit_sha": "bf5f0dd877dd3c23ce85c2cbc1dd771567e84c8c",
+    "framework_detected": "vue",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "vite",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 2.2084672451019287,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.09547853469848633,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": true,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/sveltejs/kit",
+    "commit_sha": "dd2d9754840d013b882aa45c2019e68b84e6b1af",
+    "framework_detected": "",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "vite dev",
+    "compatibility_status": "UNSUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 4.748827695846558,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.9339051246643066,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": false,
+    "language_correct": true,
+    "port_correct": true,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/LekoArts/gatsby-themes",
+    "commit_sha": "0ee600732beb88a49135760df9ed6f4d419fde2e",
+    "framework_detected": "react",
+    "language_detected": "node",
+    "package_manager_detected": "yarn",
+    "port_detected": 3000,
+    "entrypoint_detected": "gatsby develop",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 5.948467016220093,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.1584315299987793,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": true,
+    "port_correct": null,
+    "package_manager_correct": false,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/pypa/sampleproject",
+    "commit_sha": "621e4974ca25ce531773def586ba3ed8e736b3fc",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "pip",
+    "port_detected": 3000,
+    "entrypoint_detected": "python app.py",
+    "compatibility_status": "SUPPORTED_WITH_WARNINGS",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 1.217095136642456,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.017735719680786133,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": true,
+    "port_correct": null,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/pnpm/pnpm",
+    "commit_sha": "07ab9fa881733154670f803fb4aa96dfd97e6cd9",
+    "framework_detected": "react",
+    "language_detected": "node",
+    "package_manager_detected": "pnpm",
+    "port_detected": 3000,
+    "entrypoint_detected": "tsgo --watch",
+    "compatibility_status": "SUPPORTED",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 14.942298650741577,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 2.356571674346924,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": true,
+    "port_correct": null,
+    "package_manager_correct": true,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
+  },
+  {
+    "repo_url": "https://github.com/python/cpython",
+    "commit_sha": "03a3f3d30cab2752e8ed84a47d64afee88d13fd9",
+    "framework_detected": "",
+    "language_detected": "python",
+    "package_manager_detected": "unknown",
+    "port_detected": 3000,
+    "entrypoint_detected": "python app.py",
+    "compatibility_status": "SUPPORTED_WITH_WARNINGS",
+    "compatibility_confidence": "HIGH",
+    "validation_errors": [],
+    "stages": [
+      {
+        "stage": "clone",
+        "success": true,
+        "duration_seconds": 17.070332288742065,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "analysis",
+        "success": true,
+        "duration_seconds": 0.7592899799346924,
+        "error": "",
+        "details": {}
+      },
+      {
+        "stage": "validation",
+        "success": true,
+        "duration_seconds": 0.0,
+        "error": "",
+        "details": {
+          "errors": []
+        }
+      }
+    ],
+    "framework_correct": null,
+    "language_correct": true,
+    "port_correct": null,
+    "package_manager_correct": null,
+    "final_status": "ANALYSIS_SUCCESS",
+    "failure_stage": "",
+    "failure_category": "",
+    "notes": ""
   }
 ]

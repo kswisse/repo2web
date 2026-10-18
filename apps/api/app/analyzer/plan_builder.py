@@ -226,7 +226,7 @@ def _get_default_start_command(context: AnalysisContext) -> str:
     if framework == "fastapi":
         return "uvicorn main:app --host 0.0.0.0 --port 8000"
     elif framework == "flask":
-        return "python app.py"
+        return "flask run --host 0.0.0.0 --port 5000"
     elif framework == "django":
         return "python manage.py runserver 0.0.0.0:8000"
     elif framework == "streamlit":

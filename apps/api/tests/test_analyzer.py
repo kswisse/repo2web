@@ -37,6 +37,10 @@ from app.analyzer.manifest_parser import (
     parse_requirements_txt,
 )
 from app.analyzer.framework_detector import detect_framework
+from app.analyzer.framework_repository_detector import (
+    detect_framework_repository,
+    FrameworkRepositoryDetection,
+)
 from app.analyzer.entrypoint_detector import detect_entrypoint
 from app.analyzer.port_detector import detect_port
 from app.analyzer.env_detector import detect_environment_variables
@@ -114,6 +118,30 @@ def conflicting_repo():
 def env_repo():
     """Path to env-example test fixture."""
     return str(Path(__file__).parent / "fixtures" / "repos" / "env-example")
+
+
+@pytest.fixture
+def framework_repo_fastapi():
+    """Path to FastAPI framework repository fixture."""
+    return str(Path(__file__).parent / "fixtures" / "repos" / "framework-repository-fastapi")
+
+
+@pytest.fixture
+def framework_repo_flask():
+    """Path to Flask framework repository fixture."""
+    return str(Path(__file__).parent / "fixtures" / "repos" / "framework-repository-flask")
+
+
+@pytest.fixture
+def fastapi_name_only_repo():
+    """Path to FastAPI application (not framework) fixture."""
+    return str(Path(__file__).parent / "fixtures" / "repos" / "fastapi-in-name-only")
+
+
+@pytest.fixture
+def flask_name_only_repo():
+    """Path to Flask application (not framework) fixture."""
+    return str(Path(__file__).parent / "fixtures" / "repos" / "flask-in-name-only")
 
 
 # ============================================================================
@@ -870,6 +898,313 @@ class TestPlanValidator:
 
         assert result.valid is False
         assert any("status" in e.lower() for e in result.errors)
+
+
+# ============================================================================
+# Framework Repository Detector Tests
+# ============================================================================
+
+
+class TestFrameworkRepositoryDetector:
+    """Tests for framework repository detection."""
+
+    def test_fastapi_framework_repository_by_identity(self):
+        """Test FastAPI framework repository detected by owner/name identity."""
+        result = detect_framework_repository(
+            owner="tiangolo",
+            repo="fastapi",
+            key_files={},
+            file_names=[],
+            all_dependencies={},
+            framework_name="fastapi",
+        )
+
+        assert result.is_framework_repository is True
+        assert result.confidence == "HIGH"
+        assert len(result.evidence) > 0
+
+    def test_flask_framework_repository_by_identity(self):
+        """Test Flask framework repository detected by owner/name identity."""
+        result = detect_framework_repository(
+            owner="pallets",
+            repo="flask",
+            key_files={},
+            file_names=[],
+            all_dependencies={},
+            framework_name="flask",
+        )
+
+        assert result.is_framework_repository is True
+        assert result.confidence == "HIGH"
+
+    def test_fastapi_framework_repository_by_metadata(self):
+        """Test FastAPI framework repository detected by pyproject.toml metadata."""
+        pyproject_content = """
+[project]
+name = "fastapi"
+version = "0.109.0"
+"""
+        result = detect_framework_repository(
+            owner="some-user",
+            repo="fastapi-source",
+            key_files={"pyproject.toml": pyproject_content},
+            file_names=[],
+            all_dependencies={},
+            framework_name="fastapi",
+        )
+
+        assert result.is_framework_repository is True
+        # Confidence can be HIGH if multiple signals confirm (metadata + dependency absence + no app indicators)
+        assert result.confidence in ("HIGH", "MEDIUM", "LOW")
+        assert any("pyproject.toml" in e for e in result.evidence)
+
+    def test_fastapi_framework_repository_by_setup_py(self):
+        """Test FastAPI framework repository detected by setup.py metadata."""
+        setup_py_content = """
+from setuptools import setup
+
+setup(
+    name="fastapi",
+    version="0.109.0",
+)
+"""
+        result = detect_framework_repository(
+            owner="some-user",
+            repo="fastapi-source",
+            key_files={"setup.py": setup_py_content},
+            file_names=[],
+            all_dependencies={},
+            framework_name="fastapi",
+        )
+
+        assert result.is_framework_repository is True
+        assert any("setup.py" in e for e in result.evidence)
+
+    def test_fastapi_framework_repository_by_package_structure(self):
+        """Test FastAPI framework repository detected by package directory structure."""
+        result = detect_framework_repository(
+            owner="some-user",
+            repo="fastapi-source",
+            key_files={},
+            file_names=["fastapi/__init__.py", "fastapi/applications.py"],
+            all_dependencies={},
+            framework_name="fastapi",
+        )
+
+        assert result.is_framework_repository is True
+        assert any("Package directory" in e for e in result.evidence)
+
+    def test_fastapi_framework_repository_by_dependency_absence(self):
+        """Test FastAPI framework repository detected when framework not in dependencies."""
+        result = detect_framework_repository(
+            owner="some-user",
+            repo="fastapi-source",
+            key_files={},
+            file_names=[],
+            all_dependencies={"starlette": "0.27.0", "pydantic": "2.0.0"},
+            framework_name="fastapi",
+        )
+
+        assert result.is_framework_repository is True
+        assert any("NOT listed as external dependency" in e for e in result.evidence)
+
+    def test_normal_fastapi_application_not_framework_repository(self):
+        """Test normal FastAPI application is NOT detected as framework repository."""
+        result = detect_framework_repository(
+            owner="test-user",
+            repo="my-fastapi-app",
+            key_files={},
+            file_names=["app.py", "requirements.txt"],
+            all_dependencies={"fastapi": "0.109.0", "uvicorn": "0.27.0"},
+            framework_name="fastapi",
+        )
+
+        assert result.is_framework_repository is False
+
+    def test_normal_flask_application_not_framework_repository(self):
+        """Test normal Flask application is NOT detected as framework repository."""
+        result = detect_framework_repository(
+            owner="test-user",
+            repo="my-flask-app",
+            key_files={},
+            file_names=["app.py", "requirements.txt"],
+            all_dependencies={"flask": "3.0.0"},
+            framework_name="flask",
+        )
+
+        assert result.is_framework_repository is False
+
+    def test_fastapi_in_name_only_not_framework_repository(self):
+        """Test repository with 'fastapi' in name but not framework is NOT detected."""
+        result = detect_framework_repository(
+            owner="test-user",
+            repo="my-fastapi-project",
+            key_files={},
+            file_names=["app.py", "requirements.txt"],
+            all_dependencies={"fastapi": "0.109.0"},
+            framework_name="fastapi",
+        )
+
+        assert result.is_framework_repository is False
+
+    def test_flask_in_name_only_not_framework_repository(self):
+        """Test repository with 'flask' in name but not framework is NOT detected."""
+        result = detect_framework_repository(
+            owner="test-user",
+            repo="flask-example",
+            key_files={},
+            file_names=["app.py", "requirements.txt"],
+            all_dependencies={"flask": "3.0.0"},
+            framework_name="flask",
+        )
+
+        assert result.is_framework_repository is False
+
+    def test_missing_metadata_safe_fallback(self):
+        """Test safe fallback when metadata is missing."""
+        result = detect_framework_repository(
+            owner="test-user",
+            repo="some-repo",
+            key_files={},
+            file_names=[],
+            all_dependencies={},
+            framework_name=None,
+        )
+
+        assert result.is_framework_repository is False
+        assert result.confidence == "LOW"
+
+    def test_malformed_metadata_safe_fallback(self):
+        """Test safe fallback when metadata is malformed."""
+        result = detect_framework_repository(
+            owner="test-user",
+            repo="some-repo",
+            key_files={"pyproject.toml": "not valid toml {{{"},
+            file_names=[],
+            all_dependencies={},
+            framework_name="fastapi",
+        )
+
+        # Should not crash, should return safe result
+        assert isinstance(result, FrameworkRepositoryDetection)
+
+    def test_no_false_framework_detection_from_readme(self):
+        """Test that README text alone doesn't trigger framework detection."""
+        result = detect_framework_repository(
+            owner="test-user",
+            repo="my-project",
+            key_files={"README.md": "This project uses FastAPI framework"},
+            file_names=["README.md"],
+            all_dependencies={"fastapi": "0.109.0"},
+            framework_name="fastapi",
+        )
+
+        assert result.is_framework_repository is False
+
+    def test_framework_repository_with_multiple_signals(self):
+        """Test framework repository with multiple confirming signals."""
+        pyproject_content = """
+[project]
+name = "fastapi"
+version = "0.109.0"
+"""
+        result = detect_framework_repository(
+            owner="tiangolo",
+            repo="fastapi",
+            key_files={"pyproject.toml": pyproject_content},
+            file_names=["fastapi/__init__.py"],
+            all_dependencies={"starlette": "0.27.0"},
+            framework_name="fastapi",
+        )
+
+        assert result.is_framework_repository is True
+        assert result.confidence == "HIGH"
+        assert len(result.evidence) >= 3
+
+    def test_framework_repository_compatibility_unsupported(self):
+        """Test that framework repository is marked UNSUPPORTED in compatibility."""
+        result = evaluate_compatibility(
+            language="python",
+            framework="fastapi",
+            entrypoint=None,
+            port=None,
+            key_files={},
+            file_names=[],
+            evidence=[],
+            is_framework_repository=True,
+        )
+
+        assert result.status == "UNSUPPORTED"
+        assert len(result.blockers) > 0
+        assert "framework itself" in result.blockers[0].lower()
+
+    def test_normal_application_not_affected_by_framework_flag(self):
+        """Test that normal applications are not affected by framework flag."""
+        result = evaluate_compatibility(
+            language="python",
+            framework="fastapi",
+            entrypoint="uvicorn main:app",
+            port=8000,
+            key_files={},
+            file_names=[],
+            evidence=[],
+            is_framework_repository=False,
+        )
+
+        assert result.status == "SUPPORTED"
+
+    def test_framework_repo_fixture_fastapi(self, framework_repo_fastapi):
+        """Test analyzing FastAPI framework repository fixture."""
+        plan = analyze_repository(
+            repo_path=framework_repo_fastapi,
+            url="https://github.com/tiangolo/fastapi",
+            commit_sha="abc123def456",
+            owner="tiangolo",
+            repo="fastapi",
+        )
+
+        assert plan.compatibility.status == "UNSUPPORTED"
+        assert len(plan.compatibility.blockers) > 0
+        assert "framework" in plan.compatibility.blockers[0].lower()
+
+    def test_framework_repo_fixture_flask(self, framework_repo_flask):
+        """Test analyzing Flask framework repository fixture."""
+        plan = analyze_repository(
+            repo_path=framework_repo_flask,
+            url="https://github.com/pallets/flask",
+            commit_sha="abc123def456",
+            owner="pallets",
+            repo="flask",
+        )
+
+        assert plan.compatibility.status == "UNSUPPORTED"
+        assert len(plan.compatibility.blockers) > 0
+
+    def test_fastapi_app_fixture_not_affected(self, fastapi_name_only_repo):
+        """Test normal FastAPI app fixture is still SUPPORTED."""
+        plan = analyze_repository(
+            repo_path=fastapi_name_only_repo,
+            url="https://github.com/test-user/fastapi-project",
+            commit_sha="abc123def456",
+            owner="test-user",
+            repo="fastapi-project",
+        )
+
+        assert plan.application.framework == "fastapi"
+        assert plan.compatibility.status in ("SUPPORTED", "SUPPORTED_WITH_WARNINGS")
+
+    def test_flask_app_fixture_not_affected(self, flask_name_only_repo):
+        """Test normal Flask app fixture is still SUPPORTED."""
+        plan = analyze_repository(
+            repo_path=flask_name_only_repo,
+            url="https://github.com/test-user/flask-project",
+            commit_sha="abc123def456",
+            owner="test-user",
+            repo="flask-project",
+        )
+
+        assert plan.application.framework == "flask"
+        assert plan.compatibility.status in ("SUPPORTED", "SUPPORTED_WITH_WARNINGS")
 
 
 # ============================================================================
