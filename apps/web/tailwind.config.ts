@@ -5,6 +5,9 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        ink: "#0D343F",
+        ember: "#FF6724",
+        emberdark: "#e55a1a",
         primary: {
           50: "#eff6ff",
           100: "#dbeafe",
@@ -17,6 +20,9 @@ const config: Config = {
           800: "#1e40af",
           900: "#1e3a8a",
         },
+      },
+      fontFamily: {
+        display: ['"Barlow Condensed"', '"Arial Narrow"', "sans-serif"],
       },
     },
   },
