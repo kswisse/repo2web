@@ -41,10 +41,35 @@ COPIER_IMAGE = "python:3.11-slim"
 
 
 def _detect_docker_url() -> str:
-    """Detect the correct Docker daemon URL for the current platform."""
-    if platform.system() == "Windows":
-        return "npipe:////./pipe/docker_engine"
-    return "unix:///var/run/docker.sock"
+    """Detect the correct Docker daemon URL for the current platform.
+
+    Windows exposes different named pipes depending on the Docker Desktop
+    backend: 'docker_engine' (legacy) and 'dockerDesktopLinuxEngine' (WSL2,
+    the default for modern Docker Desktop). Hardcoding either breaks the
+    other, so probe both and use the first one that answers.
+    """
+    if platform.system() != "Windows":
+        return "unix:///var/run/docker.sock"
+
+    candidates = (
+        "npipe:////./pipe/dockerDesktopLinuxEngine",
+        "npipe:////./pipe/docker_engine",
+    )
+    if not DOCKER_AVAILABLE:
+        return candidates[0]
+
+    for url in candidates:
+        try:
+            client = docker.DockerClient(base_url=url)
+            client.ping()
+            client.close()
+            return url
+        except Exception:
+            continue
+
+    # None answered: return the legacy default so the caller surfaces the
+    # connection error rather than silently picking an arbitrary pipe.
+    return candidates[-1]
 
 
 class DockerContainerRuntime(ContainerRuntime):

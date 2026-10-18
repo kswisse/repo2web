@@ -11,16 +11,16 @@ Chuyển GitHub repository thành web app chạy được: clone → analyze →
 - **Analyzer: DONE** — 13 modules, 94.1% analysis success trên 17 repo thật
 - **Frontend: DONE** — Next.js, deployment form + progress tracker + log viewer
 - **Backend API: DONE** — FastAPI, 5+ endpoints, Celery async, PostgreSQL
-- **Docker build pipeline: BROKEN** — 0/17 repos build thành công
+- **Docker build pipeline: CHƯA verify end-to-end** — 0/17 ở lần đo cuối (2026-09-11, trước `f8b4b28`). 3 trong 4 blocker build đã fix trong code; số 0/17 hiện tại chưa đo lại vì Docker daemon chưa chạy.
 
 ## Blocker hiện tại
 
-1. **Docker daemon chưa chạy** — cần mở Docker Desktop trước
-2. **Build command allowlist quá chặt** — `pnpm build`, `yarn build` bị block trong `executor.py`
-3. **Missing `node:20-alpine` image** — `_select_base_image()` trả về nhưng chưa auto-pull
-4. **Framework detection accuracy: 30.8%** — 3 failure classes (framework-as-repo, monorepo misidentification, false positive)
-5. **20+ diagnostic files uncommitted** — các file `diagnose_*.py`, `test_debug_*.py` cần cleanup
-6. **Container execution failures** — 6 Python repos fail "Container not found"
+1. **Docker daemon chưa chạy** — mở Docker Desktop trước. Trên Windows đặt `DOCKER_SOCKET` trong `.env` (`.env.example` có hướng dẫn), hoặc để trống cho auto-detect.
+2. ~~Build command allowlist quá chặt~~ — **đã fix** (`f8b4b28`): `pnpm/yarn build|run` có trong allowlist.
+3. ~~Missing `node:20-alpine` image~~ — **đã fix** (`f8b4b28`): `_ensure_image()` pull image khi thiếu.
+4. ~~Framework detection accuracy: 30.8%~~ — **đã fix**: `framework_repository_detector` phân biệt repo-là-framework vs app-dùng-framework (commit `9fe1bcf`).
+5. ~~Diagnostic files uncommitted~~ — **đã dọn**: không còn file `diagnose_*.py`/`test_debug_*.py`; toàn bộ work đã commit.
+6. **Container execution failures** ("Container not found") — lỗi START, cần daemon để tái hiện và tìm root cause.
 
 ## Kiến trúc
 
